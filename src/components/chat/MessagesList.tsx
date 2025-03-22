@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import ChatMessage from './ChatMessage';
 import MessageChoices from './MessageChoices';
@@ -16,6 +16,17 @@ const MessagesList: React.FC<MessagesListProps> = ({
   isTyping,
   onOptionSelect
 }) => {
+  // Create a ref that doesn't cause scrolling on every render
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  
+  // Only scroll when a new message is added or typing status changes
+  useEffect(() => {
+    if (messagesEndRef.current) {
+      // Use scrollIntoView with behavior: 'auto' to prevent jumpy scrolling
+      messagesEndRef.current.scrollIntoView({ block: 'nearest', behavior: 'auto' });
+    }
+  }, [messages.length, isTyping]);
+
   return (
     <AnimatePresence>
       {messages.map((message) => (
@@ -42,6 +53,8 @@ const MessagesList: React.FC<MessagesListProps> = ({
           isLoading={true}
         />
       )}
+      
+      <div ref={messagesEndRef} className="h-0" />
     </AnimatePresence>
   );
 };

@@ -78,6 +78,17 @@ export const chatFlow: ChatFlowConfig = {
   suggestions: {
     message: "Based on your choices, here are some perfect gift suggestions:",
     choices: []
+  },
+  final_question: {
+    message: "Anything else you want to add to help me find the perfect gift?",
+    choices: [
+      { id: 'yes', text: "Yes, I'd like to add more details", nextStep: 'custom_input' },
+      { id: 'no', text: "No, these suggestions look great", nextStep: 'thank_you' }
+    ]
+  },
+  thank_you: {
+    message: "Great! I hope you find the perfect gift from these suggestions. If you need more help, just let me know!",
+    choices: []
   }
 };
 

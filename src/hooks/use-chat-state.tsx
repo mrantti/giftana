@@ -18,6 +18,7 @@ export function useChatState() {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [currentStep, setCurrentStep] = useState('welcome');
   const [chatHistory, setChatHistory] = useState<{[key: string]: string}>({});
+  const [showTextInput, setShowTextInput] = useState(false);
   const { toast } = useToast();
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -36,19 +37,14 @@ export function useChatState() {
     setMessages(prev => [...prev, userMessage]);
     setInputValue('');
     setIsTyping(true);
-    setShowSuggestions(false);
     
     // Process custom user input
     setTimeout(() => {
       const botMessage: Message = {
         id: (Date.now() + 1).toString(),
-        content: "I see you're looking for something specific. Let me help you find the perfect gift!",
+        content: "Thanks for your additional information. I'll take that into account with my suggestions.",
         type: 'bot',
         timestamp: new Date(),
-        choices: [
-          { id: 'restart', text: "Restart guided flow", nextStep: 'recipient' },
-          { id: 'continue', text: "Continue with my request", nextStep: 'suggestions' }
-        ]
       };
       
       setMessages(prev => [...prev, botMessage]);
@@ -96,6 +92,22 @@ export function useChatState() {
         
         setMessages(prev => [...prev, botMessage]);
         setShowSuggestions(true);
+        
+        // After showing suggestions, add the "anything else" message
+        setTimeout(() => {
+          const finalMessage: Message = {
+            id: (Date.now() + 2).toString(),
+            content: chatFlow.final_question.message,
+            type: 'bot',
+            timestamp: new Date(),
+            choices: chatFlow.final_question.choices
+          };
+          
+          setMessages(prev => [...prev, finalMessage]);
+          setCurrentStep('final_question');
+        }, 1000);
+      } else if (nextStep === 'custom_input') {
+        setShowTextInput(true);
       } else {
         // Otherwise, continue with the guided flow
         const nextStepData = chatFlow[nextStep as keyof typeof chatFlow];
@@ -116,17 +128,6 @@ export function useChatState() {
     }, 1000);
   };
 
-  const getResponseForQuery = (query: string): string => {
-    // Very basic response logic for the MVP
-    if (query.toLowerCase().includes('gardening')) {
-      return "Based on your request, here are some perfect gardening gifts I found:";
-    } else if (query.toLowerCase().includes('tech') || query.toLowerCase().includes('dad')) {
-      return "I found these tech gadgets that would make great gifts:";
-    } else {
-      return "Here are some gift suggestions that might work well:";
-    }
-  };
-
   const handleReset = () => {
     toast({
       title: "Chat reset",
@@ -136,6 +137,7 @@ export function useChatState() {
     setShowSuggestions(false);
     setCurrentStep('welcome');
     setChatHistory({});
+    setShowTextInput(false);
   };
 
   return {
@@ -146,6 +148,7 @@ export function useChatState() {
     showSuggestions,
     handleSubmit,
     handleOptionSelect,
-    handleReset
+    handleReset,
+    showTextInput
   };
 }

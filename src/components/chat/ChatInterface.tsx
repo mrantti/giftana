@@ -16,15 +16,11 @@ const ChatInterface: React.FC = () => {
     showSuggestions, 
     handleSubmit, 
     handleOptionSelect, 
-    handleReset 
+    handleReset,
+    showTextInput 
   } = useChatState();
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
-
-  // Auto-scroll to bottom when messages change
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages, isTyping]);
 
   return (
     <div className="flex flex-col h-full">
@@ -55,12 +51,14 @@ const ChatInterface: React.FC = () => {
       </div>
       
       <div className="p-4 border-t bg-card">
-        <ChatInput
-          inputValue={inputValue}
-          setInputValue={setInputValue}
-          isTyping={isTyping}
-          handleSubmit={handleSubmit}
-        />
+        {showTextInput && (
+          <ChatInput
+            inputValue={inputValue}
+            setInputValue={setInputValue}
+            isTyping={isTyping}
+            handleSubmit={handleSubmit}
+          />
+        )}
         
         <div className="flex justify-center mt-4">
           <span className="text-xs text-muted-foreground text-center max-w-md">
