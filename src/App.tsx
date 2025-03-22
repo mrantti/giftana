@@ -93,10 +93,10 @@ const App = () => (
               {/* Public routes */}
               <Route path="/" element={<PublicLayout><Home /></PublicLayout>} />
               <Route path="/login" element={<AuthLayout><AuthForm /></AuthLayout>} />
+              <Route path="/chat" element={<PublicLayout><Chat /></PublicLayout>} />
               
               {/* Protected routes */}
               <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
-              <Route path="/chat" element={<PrivateRoute><Chat /></PrivateRoute>} />
               <Route path="/events" element={<PrivateRoute><Events /></PrivateRoute>} />
               <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
               
