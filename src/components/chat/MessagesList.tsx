@@ -22,8 +22,13 @@ const MessagesList: React.FC<MessagesListProps> = ({
   // Only scroll when a new message is added or typing status changes
   useEffect(() => {
     if (messagesEndRef.current) {
-      // Use scrollIntoView with behavior: 'auto' to prevent jumpy scrolling
-      messagesEndRef.current.scrollIntoView({ block: 'nearest', behavior: 'auto' });
+      // Use smooth scrolling with a timeout to prevent jarring movements
+      setTimeout(() => {
+        messagesEndRef.current?.scrollIntoView({ 
+          block: 'end',
+          behavior: 'smooth'
+        });
+      }, 100);
     }
   }, [messages.length, isTyping]);
 
@@ -54,7 +59,7 @@ const MessagesList: React.FC<MessagesListProps> = ({
         />
       )}
       
-      <div ref={messagesEndRef} className="h-0" />
+      <div ref={messagesEndRef} className="h-4 w-full" />
     </AnimatePresence>
   );
 };

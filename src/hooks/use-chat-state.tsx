@@ -1,5 +1,13 @@
+
 import { useState } from 'react';
-import { ChatChoice, chatFlow, getWelcomeMessages } from '@/components/chat/chatFlowConfig';
+import { 
+  ChatChoice, 
+  chatFlow, 
+  getWelcomeMessages, 
+  determinePersona, 
+  getPersonaResponse,
+  PersonaType 
+} from '@/components/chat/chatFlowConfig';
 import { Product } from '@/components/chat/ProductSuggestion';
 import { useToast } from '@/components/ui/use-toast';
 
@@ -19,6 +27,7 @@ export function useChatState() {
   const [currentStep, setCurrentStep] = useState('welcome');
   const [chatHistory, setChatHistory] = useState<{[key: string]: string}>({});
   const [showTextInput, setShowTextInput] = useState(false);
+  const [persona, setPersona] = useState<PersonaType>('unknown');
   const { toast } = useToast();
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -69,10 +78,18 @@ export function useChatState() {
     setMessages(prev => [...prev, userMessage]);
     
     // Store the choice in chat history
-    setChatHistory(prev => ({
-      ...prev,
+    const updatedHistory = {
+      ...chatHistory,
       [currentStep]: choiceId
-    }));
+    };
+    
+    setChatHistory(updatedHistory);
+    
+    // Determine persona after collecting enough data
+    if (['budget', 'detail_question'].includes(currentStep)) {
+      const detectedPersona = determinePersona(updatedHistory);
+      setPersona(detectedPersona);
+    }
     
     // Set typing indicator
     setIsTyping(true);
@@ -83,9 +100,12 @@ export function useChatState() {
       
       if (nextStep === 'suggestions') {
         // When we reach suggestions, show product recommendations
+        // Use persona-specific messaging if available
+        const suggestionsMessage = getPersonaResponse(persona);
+        
         const botMessage: Message = {
           id: (Date.now() + 1).toString(),
-          content: "Based on your preferences, here are some perfect gift suggestions:",
+          content: suggestionsMessage,
           type: 'bot',
           timestamp: new Date()
         };
@@ -138,6 +158,7 @@ export function useChatState() {
     setCurrentStep('welcome');
     setChatHistory({});
     setShowTextInput(false);
+    setPersona('unknown');
   };
 
   return {
@@ -149,6 +170,7 @@ export function useChatState() {
     handleSubmit,
     handleOptionSelect,
     handleReset,
-    showTextInput
+    showTextInput,
+    persona
   };
 }

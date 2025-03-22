@@ -1,5 +1,5 @@
 
-import React, { useRef, useEffect } from 'react';
+import React, { useRef } from 'react';
 import { RotateCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useChatState } from '@/hooks/use-chat-state';
@@ -17,16 +17,36 @@ const ChatInterface: React.FC = () => {
     handleSubmit, 
     handleOptionSelect, 
     handleReset,
-    showTextInput 
+    showTextInput,
+    persona
   } = useChatState();
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Helper function to get persona display name
+  const getPersonaDisplayName = (personaType: string): string => {
+    const personaNames: {[key: string]: string} = {
+      'busy_professional': 'Busy Professional',
+      'last_minute': 'Last-Minute Shopper',
+      'sentimental': 'Sentimental Giver',
+      'corporate': 'Corporate/Business',
+      'budget_conscious': 'Budget-Conscious',
+      'unknown': ''
+    };
+    
+    return personaNames[personaType] || '';
+  };
 
   return (
     <div className="flex flex-col h-full">
       <div className="bg-card border-b px-4 py-3 flex items-center justify-between">
         <h2 className="font-semibold">Gift Advisor</h2>
         <div className="flex items-center space-x-2">
+          {persona !== 'unknown' && (
+            <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded">
+              {getPersonaDisplayName(persona)}
+            </span>
+          )}
           <Button 
             variant="ghost" 
             size="icon" 
