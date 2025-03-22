@@ -1,9 +1,10 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { SendHorizontal, RotateCcw, X } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import ChatMessage, { MessageType } from './ChatMessage';
 import ProductSuggestion, { Product } from './ProductSuggestion';
 import { useToast } from '@/components/ui/use-toast';
@@ -13,6 +14,13 @@ interface Message {
   content: string;
   type: MessageType;
   timestamp: Date;
+  choices?: ChatChoice[];
+}
+
+interface ChatChoice {
+  id: string;
+  text: string;
+  nextStep: string;
 }
 
 // Mock product data
@@ -46,19 +54,81 @@ const mockProducts: Product[] = [
   }
 ];
 
+// Chat flow configuration
+const chatFlow = {
+  welcome: {
+    message: "Hi there! I'm your gift-finding assistant. Let's find the perfect gift together!",
+    choices: [
+      { id: 'start', text: "Let's get started", nextStep: 'recipient' }
+    ]
+  },
+  recipient: {
+    message: "Great! Who are you buying this gift for?",
+    choices: [
+      { id: 'family', text: "Family member", nextStep: 'family_member' },
+      { id: 'friend', text: "Friend", nextStep: 'occasion' },
+      { id: 'colleague', text: "Colleague/Co-worker", nextStep: 'occasion' },
+      { id: 'partner', text: "Partner/Significant other", nextStep: 'occasion' },
+      { id: 'other', text: "Someone else", nextStep: 'occasion' }
+    ]
+  },
+  family_member: {
+    message: "Which family member?",
+    choices: [
+      { id: 'parent', text: "Parent", nextStep: 'occasion' },
+      { id: 'sibling', text: "Sibling", nextStep: 'occasion' },
+      { id: 'child', text: "Child", nextStep: 'occasion' },
+      { id: 'grandparent', text: "Grandparent", nextStep: 'occasion' },
+      { id: 'other_family', text: "Other family member", nextStep: 'occasion' }
+    ]
+  },
+  occasion: {
+    message: "What's the occasion?",
+    choices: [
+      { id: 'birthday', text: "Birthday", nextStep: 'interests' },
+      { id: 'holiday', text: "Holiday", nextStep: 'interests' },
+      { id: 'anniversary', text: "Anniversary", nextStep: 'interests' },
+      { id: 'graduation', text: "Graduation", nextStep: 'interests' },
+      { id: 'other_occasion', text: "Other occasion", nextStep: 'interests' }
+    ]
+  },
+  interests: {
+    message: "What are their interests or hobbies?",
+    choices: [
+      { id: 'tech', text: "Technology/Gadgets", nextStep: 'budget' },
+      { id: 'outdoor', text: "Outdoors/Nature", nextStep: 'budget' },
+      { id: 'cooking', text: "Cooking/Food", nextStep: 'budget' },
+      { id: 'reading', text: "Books/Reading", nextStep: 'budget' },
+      { id: 'art', text: "Art/Creativity", nextStep: 'budget' },
+      { id: 'fitness', text: "Fitness/Sports", nextStep: 'budget' },
+      { id: 'music', text: "Music", nextStep: 'budget' },
+      { id: 'gardening', text: "Gardening", nextStep: 'budget' },
+      { id: 'not_sure', text: "I'm not sure", nextStep: 'budget' }
+    ]
+  },
+  budget: {
+    message: "What's your budget range?",
+    choices: [
+      { id: 'budget_low', text: "Under $25", nextStep: 'suggestions' },
+      { id: 'budget_medium', text: "Between $25-$50", nextStep: 'suggestions' },
+      { id: 'budget_high', text: "Between $50-$100", nextStep: 'suggestions' },
+      { id: 'budget_premium', text: "Over $100", nextStep: 'suggestions' }
+    ]
+  },
+  suggestions: {
+    message: "Based on your choices, here are some perfect gift suggestions:",
+    choices: []
+  }
+};
+
 // Welcome messages
 const welcomeMessages = [
   {
     id: 'welcome-1',
-    content: "Hi there! I'm your gift-finding assistant. I can help you find the perfect gift for any occasion.",
+    content: chatFlow.welcome.message,
     type: 'bot' as MessageType,
-    timestamp: new Date()
-  },
-  {
-    id: 'welcome-2',
-    content: "Try asking me something like: \"I need a gift for my sister who loves gardening\" or \"Help me find a birthday gift for my tech-savvy dad under $50.\"",
-    type: 'bot' as MessageType,
-    timestamp: new Date()
+    timestamp: new Date(),
+    choices: chatFlow.welcome.choices
   }
 ];
 
@@ -67,6 +137,8 @@ const ChatInterface: React.FC = () => {
   const [inputValue, setInputValue] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [currentStep, setCurrentStep] = useState('welcome');
+  const [chatHistory, setChatHistory] = useState<{[key: string]: string}>({});
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
@@ -93,19 +165,82 @@ const ChatInterface: React.FC = () => {
     setIsTyping(true);
     setShowSuggestions(false);
     
-    // Simulate bot response after a delay
+    // Process custom user input
     setTimeout(() => {
       const botMessage: Message = {
         id: (Date.now() + 1).toString(),
-        content: getResponseForQuery(inputValue),
+        content: "I see you're looking for something specific. Let me help you find the perfect gift!",
         type: 'bot',
-        timestamp: new Date()
+        timestamp: new Date(),
+        choices: [
+          { id: 'restart', text: "Restart guided flow", nextStep: 'recipient' },
+          { id: 'continue', text: "Continue with my request", nextStep: 'suggestions' }
+        ]
       };
       
       setMessages(prev => [...prev, botMessage]);
       setIsTyping(false);
-      setShowSuggestions(true);
     }, 1500);
+  };
+
+  const handleOptionSelect = (choiceId: string, nextStep: string) => {
+    // Find the choice text for the selected option
+    const choiceText = chatFlow[currentStep as keyof typeof chatFlow]?.choices.find(
+      choice => choice.id === choiceId
+    )?.text || choiceId;
+
+    // Add user's choice as a message
+    const userMessage: Message = {
+      id: Date.now().toString(),
+      content: choiceText,
+      type: 'user',
+      timestamp: new Date()
+    };
+    
+    setMessages(prev => [...prev, userMessage]);
+    
+    // Store the choice in chat history
+    setChatHistory(prev => ({
+      ...prev,
+      [currentStep]: choiceId
+    }));
+    
+    // Set typing indicator
+    setIsTyping(true);
+    
+    // Process next step after a short delay
+    setTimeout(() => {
+      setIsTyping(false);
+      
+      if (nextStep === 'suggestions') {
+        // When we reach suggestions, show product recommendations
+        const botMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          content: "Based on your preferences, here are some perfect gift suggestions:",
+          type: 'bot',
+          timestamp: new Date()
+        };
+        
+        setMessages(prev => [...prev, botMessage]);
+        setShowSuggestions(true);
+      } else {
+        // Otherwise, continue with the guided flow
+        const nextStepData = chatFlow[nextStep as keyof typeof chatFlow];
+        
+        if (nextStepData) {
+          const botMessage: Message = {
+            id: (Date.now() + 1).toString(),
+            content: nextStepData.message,
+            type: 'bot',
+            timestamp: new Date(),
+            choices: nextStepData.choices
+          };
+          
+          setMessages(prev => [...prev, botMessage]);
+          setCurrentStep(nextStep);
+        }
+      }
+    }, 1000);
   };
 
   const getResponseForQuery = (query: string): string => {
@@ -126,6 +261,8 @@ const ChatInterface: React.FC = () => {
     });
     setMessages(welcomeMessages);
     setShowSuggestions(false);
+    setCurrentStep('welcome');
+    setChatHistory({});
   };
 
   return (
@@ -147,12 +284,33 @@ const ChatInterface: React.FC = () => {
       <div className="flex-1 overflow-y-auto px-4 py-4 chat-container">
         <AnimatePresence>
           {messages.map((message) => (
-            <ChatMessage
-              key={message.id}
-              content={message.content}
-              type={message.type}
-              timestamp={message.timestamp}
-            />
+            <div key={message.id}>
+              <ChatMessage
+                content={message.content}
+                type={message.type}
+                timestamp={message.timestamp}
+              />
+              
+              {message.choices && message.choices.length > 0 && message.type === 'bot' && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3, delay: 0.2 }}
+                  className="flex flex-wrap gap-2 mb-4 ml-10"
+                >
+                  {message.choices.map((choice) => (
+                    <Button
+                      key={choice.id}
+                      variant="secondary"
+                      className="shadow-sm"
+                      onClick={() => handleOptionSelect(choice.id, choice.nextStep)}
+                    >
+                      {choice.text}
+                    </Button>
+                  ))}
+                </motion.div>
+              )}
+            </div>
           ))}
         </AnimatePresence>
         
@@ -196,7 +354,7 @@ const ChatInterface: React.FC = () => {
         <form onSubmit={handleSubmit} className="flex space-x-2">
           <div className="relative flex-1">
             <Input
-              placeholder="Ask for gift suggestions..."
+              placeholder="Or type a custom request..."
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               className="pr-10"
