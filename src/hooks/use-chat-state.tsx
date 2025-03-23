@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { 
   ChatChoice, 
   chatFlow, 
@@ -30,6 +30,16 @@ export function useChatState() {
   const [persona, setPersona] = useState<PersonaType>('unknown');
   const { toast } = useToast();
 
+  // Enhanced check for persona updates
+  useEffect(() => {
+    if (Object.keys(chatHistory).length >= 3) {
+      const detectedPersona = determinePersona(chatHistory);
+      if (detectedPersona !== persona) {
+        setPersona(detectedPersona);
+      }
+    }
+  }, [chatHistory, persona]);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -49,9 +59,20 @@ export function useChatState() {
     
     // Process custom user input
     setTimeout(() => {
+      // More personalized response based on the persona
+      let responseMessage = "Thanks for your additional information. I'll take that into account with my suggestions.";
+      
+      if (persona === 'sentimental') {
+        responseMessage = "Thank you for sharing that meaningful context. I'll ensure the suggestions reflect the emotional connection you're looking to express.";
+      } else if (persona === 'busy_professional') {
+        responseMessage = "Got it. I'll use this information to find efficient yet thoughtful options for you.";
+      } else if (persona === 'last_minute') {
+        responseMessage = "Thanks - I'll find you something meaningful that can arrive quickly.";
+      }
+      
       const botMessage: Message = {
         id: (Date.now() + 1).toString(),
-        content: "Thanks for your additional information. I'll take that into account with my suggestions.",
+        content: responseMessage,
         type: 'bot',
         timestamp: new Date(),
       };
@@ -85,9 +106,9 @@ export function useChatState() {
     
     setChatHistory(updatedHistory);
     
-    // Determine persona after collecting enough data
-    if (['budget', 'detail_question'].includes(currentStep)) {
-      const detectedPersona = determinePersona(updatedHistory);
+    // Determine persona after each selection for more dynamic persona detection
+    const detectedPersona = determinePersona(updatedHistory);
+    if (detectedPersona !== persona) {
       setPersona(detectedPersona);
     }
     

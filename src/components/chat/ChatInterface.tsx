@@ -1,5 +1,5 @@
 
-import React, { useRef } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { RotateCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useChatState } from '@/hooks/use-chat-state';
@@ -22,6 +22,14 @@ const ChatInterface: React.FC = () => {
   } = useChatState();
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [showPersonaInfo, setShowPersonaInfo] = useState(false);
+  
+  // Show persona info when the persona is determined and it's sentimental
+  useEffect(() => {
+    if (persona !== 'unknown') {
+      setShowPersonaInfo(true);
+    }
+  }, [persona]);
 
   // Helper function to get persona display name
   const getPersonaDisplayName = (personaType: string): string => {
@@ -63,6 +71,8 @@ const ChatInterface: React.FC = () => {
           messages={messages}
           isTyping={isTyping}
           onOptionSelect={handleOptionSelect}
+          persona={persona}
+          showPersonaInfo={showPersonaInfo}
         />
         
         {showSuggestions && <ProductSuggestionsList />}
