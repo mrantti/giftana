@@ -1,8 +1,22 @@
-
-// This is a mock API service for the MVP
-// In a real implementation, this would connect to your backend
+// This is a mock API service simulating a real backend infrastructure
+// In a production environment, this would connect to actual microservices
 
 import { Product } from '@/components/chat/ProductSuggestion';
+
+// Simulated latency for different API endpoints
+const API_LATENCY = {
+  products: () => 300 + Math.random() * 700, // 300-1000ms
+  email: () => 200 + Math.random() * 300,    // 200-500ms
+  recommendations: () => 500 + Math.random() * 1500 // 500-2000ms
+};
+
+// Simulated service health status
+const SERVICE_HEALTH = {
+  products: true,
+  email: true,
+  recommendations: true,
+  database: true
+};
 
 // Mock product database
 const productDatabase: Record<string, Product[]> = {
@@ -86,12 +100,24 @@ const productDatabase: Record<string, Product[]> = {
   ]
 };
 
-// API functions
+// API functions with simulated infrastructure behavior
 export const api = {
+  // Simulate a health check endpoint
+  healthCheck: async (): Promise<{status: string, services: Record<string, boolean>}> => {
+    await new Promise(resolve => setTimeout(resolve, 100));
+    return {
+      status: Object.values(SERVICE_HEALTH).every(status => status) ? 'healthy' : 'degraded',
+      services: SERVICE_HEALTH
+    };
+  },
+  
   // Get gift suggestions based on interests and budget
   getGiftSuggestions: async (interests: string[], budget?: number): Promise<Product[]> => {
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    // Simulate backend service latency
+    await new Promise(resolve => setTimeout(resolve, API_LATENCY.recommendations()));
+    
+    // Log analytics data - in production this would go to a real analytics service
+    console.log(`[ANALYTICS] Gift suggestion request: interests=${interests.join(',')}, budget=${budget}`);
     
     // Get products matching interests
     let matchingProducts: Product[] = [];
@@ -105,6 +131,7 @@ export const api = {
     
     // If no matches found, return some default products
     if (matchingProducts.length === 0) {
+      console.log('[ERROR] No matching products found, falling back to defaults');
       const allProducts = Object.values(productDatabase).flat();
       matchingProducts = allProducts.slice(0, 3);
     }
@@ -117,6 +144,9 @@ export const api = {
       });
     }
     
+    // Cache the results (simulated)
+    console.log(`[CACHE] Storing results for interests=${interests.join(',')}, budget=${budget}`);
+    
     // Return top 3 products
     return matchingProducts.slice(0, 3);
   },
@@ -124,12 +154,25 @@ export const api = {
   // Send email reminder
   sendEmailReminder: async (email: string, eventName: string, date: Date): Promise<boolean> => {
     // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 500));
+    await new Promise(resolve => setTimeout(resolve, API_LATENCY.email()));
     
-    // Log the email that would be sent in a real implementation
-    console.log(`Email reminder sent to ${email} for ${eventName} on ${date.toLocaleDateString()}`);
+    // Simulate sending through an email service with proper logging
+    console.log(`[EMAIL_SERVICE] Reminder scheduled for ${email}: ${eventName} on ${date.toLocaleDateString()}`);
+    
+    // Simulate rate limiting and throttling
+    if (Math.random() > 0.95) {
+      console.log('[RATE_LIMIT] Email sending throttled');
+      throw new Error('Rate limit exceeded for email service');
+    }
     
     // Always return success in this mock implementation
     return true;
+  },
+  
+  // Track user interaction (simulated analytics endpoint)
+  trackInteraction: async (userId: string, action: string, metadata: Record<string, any>): Promise<void> => {
+    // In a real implementation, this would send to an analytics service
+    console.log(`[ANALYTICS] User ${userId} performed ${action}`, metadata);
+    return Promise.resolve();
   }
 };

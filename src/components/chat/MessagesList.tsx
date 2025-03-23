@@ -49,12 +49,20 @@ const MessagesList: React.FC<MessagesListProps> = ({
         >
           <p className="font-medium">Gift Advisor Insight:</p>
           <p>{getPersonaDescription(persona)}</p>
+          <p className="text-xs text-muted-foreground mt-1">
+            Our AI has adapted to your preferences
+          </p>
         </motion.div>
       )}
       
       <AnimatePresence>
         {messages.map((message) => (
-          <div key={message.id}>
+          <motion.div 
+            key={message.id}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+          >
             <ChatMessage
               content={message.content}
               type={message.type}
@@ -67,15 +75,21 @@ const MessagesList: React.FC<MessagesListProps> = ({
                 onSelect={onOptionSelect} 
               />
             )}
-          </div>
+          </motion.div>
         ))}
         
         {isTyping && (
-          <ChatMessage
-            content=""
-            type="bot"
-            isLoading={true}
-          />
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.2 }}
+          >
+            <ChatMessage
+              content=""
+              type="bot"
+              isLoading={true}
+            />
+          </motion.div>
         )}
         
         <div ref={messagesEndRef} className="h-4 w-full" />

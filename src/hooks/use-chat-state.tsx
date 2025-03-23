@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { 
   ChatChoice, 
   chatFlow, 
@@ -10,6 +10,7 @@ import {
 } from '@/components/chat/chatFlowConfig';
 import { Product } from '@/components/chat/ProductSuggestion';
 import { useToast } from '@/components/ui/use-toast';
+import { api } from '@/services/api';
 
 export interface Message {
   id: string;
@@ -17,6 +18,12 @@ export interface Message {
   type: 'user' | 'bot';
   timestamp: Date;
   choices?: ChatChoice[];
+}
+
+interface ChatMetrics {
+  responseTime: number;
+  sessionDuration: number;
+  messageCount: number;
 }
 
 export function useChatState() {
@@ -28,6 +35,11 @@ export function useChatState() {
   const [chatHistory, setChatHistory] = useState<{[key: string]: string}>({});
   const [showTextInput, setShowTextInput] = useState(false);
   const [persona, setPersona] = useState<PersonaType>('unknown');
+  const [metrics, setMetrics] = useState<ChatMetrics>({
+    responseTime: 0,
+    sessionDuration: 0,
+    messageCount: 0
+  });
   const { toast } = useToast();
 
   // Enhanced check for persona updates
@@ -36,14 +48,41 @@ export function useChatState() {
       const detectedPersona = determinePersona(chatHistory);
       if (detectedPersona !== persona) {
         setPersona(detectedPersona);
+        // Simulating backend event tracking
+        console.log(`[ANALYTICS] Persona detected: ${detectedPersona}`);
       }
     }
   }, [chatHistory, persona]);
+  
+  // Session duration tracker
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setMetrics(prev => ({
+        ...prev,
+        sessionDuration: prev.sessionDuration + 1
+      }));
+    }, 1000);
+    
+    return () => clearInterval(interval);
+  }, []);
+
+  // Simulate response time tracking
+  const trackResponseTime = useCallback((startTime: number) => {
+    const endTime = Date.now();
+    const responseTime = (endTime - startTime) / 1000;
+    setMetrics(prev => ({
+      ...prev,
+      responseTime,
+      messageCount: prev.messageCount + 1
+    }));
+  }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!inputValue.trim()) return;
+    
+    const startTime = Date.now();
     
     // Add user message
     const userMessage: Message = {
@@ -57,7 +96,7 @@ export function useChatState() {
     setInputValue('');
     setIsTyping(true);
     
-    // Process custom user input
+    // Process custom user input with simulated infrastructure delay
     setTimeout(() => {
       // More personalized response based on the persona
       let responseMessage = "Thanks for your additional information. I'll take that into account with my suggestions.";
@@ -79,10 +118,13 @@ export function useChatState() {
       
       setMessages(prev => [...prev, botMessage]);
       setIsTyping(false);
+      trackResponseTime(startTime);
     }, 1500);
   };
 
   const handleOptionSelect = (choiceId: string, nextStep: string) => {
+    const startTime = Date.now();
+    
     // Find the choice text for the selected option
     const choiceText = chatFlow[currentStep as keyof typeof chatFlow]?.choices.find(
       choice => choice.id === choiceId
@@ -118,6 +160,7 @@ export function useChatState() {
     // Process next step after a short delay
     setTimeout(() => {
       setIsTyping(false);
+      trackResponseTime(startTime);
       
       if (nextStep === 'suggestions') {
         // When we reach suggestions, show product recommendations
@@ -180,7 +223,22 @@ export function useChatState() {
     setChatHistory({});
     setShowTextInput(false);
     setPersona('unknown');
+    setMetrics({
+      responseTime: 0,
+      sessionDuration: 0,
+      messageCount: 0
+    });
   };
+
+  // This would connect to a real backend service in a production environment
+  const getSystemHealth = useCallback(() => {
+    return {
+      status: 'healthy',
+      latency: `${(Math.random() * 50 + 25).toFixed(0)}ms`,
+      apiStatus: 'operational',
+      modelLatency: `${(Math.random() * 200 + 300).toFixed(0)}ms`
+    };
+  }, []);
 
   return {
     messages,
@@ -192,6 +250,8 @@ export function useChatState() {
     handleOptionSelect,
     handleReset,
     showTextInput,
-    persona
+    persona,
+    metrics,
+    systemHealth: getSystemHealth()
   };
 }

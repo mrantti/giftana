@@ -1,11 +1,12 @@
 
 import React, { useRef, useEffect, useState } from 'react';
-import { RotateCcw } from 'lucide-react';
+import { RotateCcw, Shield, Server, Activity } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useChatState } from '@/hooks/use-chat-state';
 import MessagesList from './MessagesList';
 import ProductSuggestionsList from './ProductSuggestionsList';
 import ChatInput from './ChatInput';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 const ChatInterface: React.FC = () => {
   const { 
@@ -18,7 +19,9 @@ const ChatInterface: React.FC = () => {
     handleOptionSelect, 
     handleReset,
     showTextInput,
-    persona
+    persona,
+    metrics,
+    systemHealth
   } = useChatState();
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -48,7 +51,26 @@ const ChatInterface: React.FC = () => {
   return (
     <div className="flex flex-col h-full">
       <div className="bg-card border-b px-4 py-3 flex items-center justify-between">
-        <h2 className="font-semibold">Gift Advisor</h2>
+        <div className="flex items-center gap-2">
+          <h2 className="font-semibold">Gift Advisor</h2>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="flex items-center">
+                  <div className={`h-2 w-2 rounded-full mr-1 ${systemHealth.status === 'healthy' ? 'bg-green-500' : 'bg-amber-500'}`}></div>
+                  <Server className="h-3.5 w-3.5 text-muted-foreground" />
+                </div>
+              </TooltipTrigger>
+              <TooltipContent side="bottom">
+                <div className="text-xs">
+                  <p>System Status: {systemHealth.status}</p>
+                  <p>API Latency: {systemHealth.latency}</p>
+                  <p>Model Latency: {systemHealth.modelLatency}</p>
+                </div>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
         <div className="flex items-center space-x-2">
           {persona !== 'unknown' && (
             <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded">
@@ -91,12 +113,20 @@ const ChatInterface: React.FC = () => {
         )}
         
         <div className="flex justify-center mt-4">
-          <span className="text-xs text-muted-foreground text-center max-w-md">
-            As an Amazon Associate / Etsy Affiliate, we may earn from qualifying purchases.
-            <a href="/privacy" className="underline underline-offset-2 ml-1 text-primary">
-              Learn more
-            </a>
-          </span>
+          <div className="flex flex-col items-center">
+            <div className="flex items-center gap-1 mb-1.5">
+              <Activity className="h-3 w-3 text-muted-foreground" />
+              <span className="text-xs text-muted-foreground">
+                Response time: {metrics.responseTime.toFixed(1)}s | Messages: {metrics.messageCount}
+              </span>
+            </div>
+            <span className="text-xs text-muted-foreground text-center max-w-md">
+              As an Amazon Associate / Etsy Affiliate, we may earn from qualifying purchases.
+              <a href="/privacy" className="underline underline-offset-2 ml-1 text-primary">
+                Learn more
+              </a>
+            </span>
+          </div>
         </div>
       </div>
     </div>
