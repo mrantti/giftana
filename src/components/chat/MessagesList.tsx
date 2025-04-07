@@ -3,7 +3,7 @@ import React, { useRef, useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import ChatMessage from './ChatMessage';
 import MessageChoices from './MessageChoices';
-import { Message } from '@/hooks/use-chat-state';
+import { Message } from '@/types/chat';
 import { getPersonaDescription, PersonaType } from './chatFlowConfig';
 
 interface MessagesListProps {

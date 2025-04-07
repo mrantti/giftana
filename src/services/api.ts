@@ -1,7 +1,7 @@
 // This is a mock API service simulating a real backend infrastructure
 // In a production environment, this would connect to actual microservices
 
-import { Product } from '@/components/chat/ProductSuggestion';
+import { Product } from '@/types/product';
 
 // Simulated latency for different API endpoints
 const API_LATENCY = {
