@@ -6,6 +6,12 @@ type User = {
   id: string;
   email: string;
   name: string;
+  preferences?: {
+    theme?: string;
+    emailNotifications?: boolean;
+    calendarSync?: boolean;
+  };
+  savedChats?: string[];
 };
 
 interface AuthContextType {
@@ -15,28 +21,54 @@ interface AuthContextType {
   register: (name: string, email: string, password: string) => Promise<boolean>;
   logout: () => void;
   updateProfile: (data: Partial<User>) => Promise<boolean>;
+  saveChat: (chatId: string) => Promise<boolean>;
+  removeChat: (chatId: string) => Promise<boolean>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Mock auth for the MVP
-const mockUsers = [
-  {
-    id: '1',
-    email: 'user@example.com',
-    name: 'Demo User',
-    password: 'password123'
+// Local storage keys
+const USER_STORAGE_KEY = 'perfectgift_user';
+const USERS_DB_KEY = 'perfectgift_users_db';
+
+// Initialize users database from localStorage or with default data
+const initUsersDb = (): Record<string, User & { password: string }> => {
+  const storedUsers = localStorage.getItem(USERS_DB_KEY);
+  if (storedUsers) {
+    return JSON.parse(storedUsers);
   }
-];
+  
+  // Default users for development
+  return {
+    '1': {
+      id: '1',
+      email: 'user@example.com',
+      name: 'Demo User',
+      password: 'password123',
+      preferences: {
+        theme: 'light',
+        emailNotifications: true,
+        calendarSync: false
+      },
+      savedChats: []
+    }
+  };
+};
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [usersDb, setUsersDb] = useState<Record<string, User & { password: string }>>(initUsersDb);
   const { toast } = useToast();
+
+  // Persist users database changes
+  useEffect(() => {
+    localStorage.setItem(USERS_DB_KEY, JSON.stringify(usersDb));
+  }, [usersDb]);
 
   useEffect(() => {
     // Check for stored user on mount
-    const storedUser = localStorage.getItem('perfectgift_user');
+    const storedUser = localStorage.getItem(USER_STORAGE_KEY);
     if (storedUser) {
       setUser(JSON.parse(storedUser));
     }
@@ -51,14 +83,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       await new Promise(resolve => setTimeout(resolve, 800));
 
       // Find user
-      const foundUser = mockUsers.find(
-        u => u.email === email && u.password === password
+      const foundUserEntry = Object.entries(usersDb).find(
+        ([_, u]) => u.email === email && u.password === password
       );
 
-      if (foundUser) {
+      if (foundUserEntry) {
+        const [_, foundUser] = foundUserEntry;
         const { password, ...userWithoutPassword } = foundUser;
         setUser(userWithoutPassword);
-        localStorage.setItem('perfectgift_user', JSON.stringify(userWithoutPassword));
+        localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(userWithoutPassword));
         toast({
           title: "Welcome back!",
           description: "You've successfully logged in.",
@@ -93,7 +126,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       await new Promise(resolve => setTimeout(resolve, 800));
 
       // Check if user exists
-      if (mockUsers.some(u => u.email === email)) {
+      if (Object.values(usersDb).some(u => u.email === email)) {
         toast({
           title: "Registration failed",
           description: "Email already in use.",
@@ -103,18 +136,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       // Create new user
+      const newUserId = String(Object.keys(usersDb).length + 1);
       const newUser = {
-        id: String(mockUsers.length + 1),
+        id: newUserId,
         email,
         name,
-        password
+        password,
+        preferences: {
+          theme: 'light',
+          emailNotifications: true,
+          calendarSync: false
+        },
+        savedChats: []
       };
 
-      mockUsers.push(newUser);
+      // Update users database
+      setUsersDb(prev => ({
+        ...prev,
+        [newUserId]: newUser
+      }));
       
       const { password: _, ...userWithoutPassword } = newUser;
       setUser(userWithoutPassword);
-      localStorage.setItem('perfectgift_user', JSON.stringify(userWithoutPassword));
+      localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(userWithoutPassword));
       
       toast({
         title: "Welcome!",
@@ -136,7 +180,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const logout = () => {
     setUser(null);
-    localStorage.removeItem('perfectgift_user');
+    localStorage.removeItem(USER_STORAGE_KEY);
     toast({
       title: "Logged out",
       description: "You've been successfully logged out.",
@@ -152,10 +196,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Mock API delay
       await new Promise(resolve => setTimeout(resolve, 800));
 
-      // Update user
+      // Update user in the database
+      setUsersDb(prev => {
+        const updatedUser = { 
+          ...prev[user.id], 
+          ...data, 
+          preferences: { 
+            ...prev[user.id].preferences, 
+            ...data.preferences 
+          }
+        };
+        return { ...prev, [user.id]: updatedUser };
+      });
+      
+      // Update current user
       const updatedUser = { ...user, ...data };
       setUser(updatedUser);
-      localStorage.setItem('perfectgift_user', JSON.stringify(updatedUser));
+      localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(updatedUser));
       
       toast({
         title: "Profile updated",
@@ -175,8 +232,92 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const saveChat = async (chatId: string): Promise<boolean> => {
+    if (!user) return false;
+    
+    try {
+      // Don't save duplicate chat IDs
+      if (user.savedChats?.includes(chatId)) return true;
+      
+      const savedChats = [...(user.savedChats || []), chatId];
+      
+      // Update user in state and localStorage
+      const updatedUser = { ...user, savedChats };
+      setUser(updatedUser);
+      localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(updatedUser));
+      
+      // Update in the users database
+      setUsersDb(prev => {
+        const updatedDbUser = { 
+          ...prev[user.id], 
+          savedChats 
+        };
+        return { ...prev, [user.id]: updatedDbUser };
+      });
+      
+      toast({
+        title: "Chat saved",
+        description: "This conversation has been saved to your profile.",
+      });
+      return true;
+    } catch (error) {
+      console.error("Save chat error:", error);
+      toast({
+        title: "Save failed",
+        description: "Failed to save this conversation.",
+        variant: "destructive",
+      });
+      return false;
+    }
+  };
+
+  const removeChat = async (chatId: string): Promise<boolean> => {
+    if (!user || !user.savedChats) return false;
+    
+    try {
+      const savedChats = user.savedChats.filter(id => id !== chatId);
+      
+      // Update user in state and localStorage
+      const updatedUser = { ...user, savedChats };
+      setUser(updatedUser);
+      localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(updatedUser));
+      
+      // Update in the users database
+      setUsersDb(prev => {
+        const updatedDbUser = { 
+          ...prev[user.id], 
+          savedChats 
+        };
+        return { ...prev, [user.id]: updatedDbUser };
+      });
+      
+      toast({
+        title: "Chat removed",
+        description: "The conversation has been removed from your saved items.",
+      });
+      return true;
+    } catch (error) {
+      console.error("Remove chat error:", error);
+      toast({
+        title: "Remove failed",
+        description: "Failed to remove this conversation.",
+        variant: "destructive",
+      });
+      return false;
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, isLoading, login, register, logout, updateProfile }}>
+    <AuthContext.Provider value={{ 
+      user, 
+      isLoading, 
+      login, 
+      register, 
+      logout, 
+      updateProfile,
+      saveChat,
+      removeChat
+    }}>
       {children}
     </AuthContext.Provider>
   );

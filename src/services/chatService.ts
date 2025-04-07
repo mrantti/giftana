@@ -1,6 +1,7 @@
 
 import { Message, ChatMetrics } from '@/types/chat';
 import { getWelcomeMessages } from '@/components/chat/chatFlowConfig';
+import { chatStorageService } from './chatStorageService';
 
 // Simulated service latency
 const SERVICE_LATENCY = {
@@ -14,10 +15,36 @@ class ChatService {
     sessionDuration: 0,
     messageCount: 0
   };
+  
+  constructor() {
+    // Initialize or load existing chat on service startup
+    this.initializeChat();
+  }
+  
+  private initializeChat(): void {
+    const currentChat = chatStorageService.getCurrentChat();
+    
+    if (currentChat) {
+      // Load existing metrics
+      this.metrics = currentChat.metrics;
+    } else {
+      // Create a new chat if none exists
+      chatStorageService.createChat(getWelcomeMessages());
+    }
+  }
 
   // Get initial welcome messages
   getInitialMessages(): Message[] {
-    return getWelcomeMessages();
+    const currentChat = chatStorageService.getCurrentChat();
+    
+    if (currentChat && currentChat.messages.length > 0) {
+      return currentChat.messages;
+    }
+    
+    // If no existing chat, create a new one with welcome messages
+    const welcomeMessages = getWelcomeMessages();
+    const newChat = chatStorageService.createChat(welcomeMessages);
+    return newChat.messages;
   }
 
   // Process user response to a choice
@@ -35,6 +62,10 @@ class ChatService {
     
     // Update metrics
     this.trackResponseTime(startTime);
+    
+    // Save message to persistent storage
+    const currentMessages = chatStorageService.getCurrentChat()?.messages || [];
+    chatStorageService.updateCurrentChatMessages([...currentMessages, userMessage]);
     
     return userMessage;
   }
@@ -56,6 +87,10 @@ class ChatService {
     // Update metrics
     this.trackResponseTime(startTime);
     
+    // Save message to persistent storage
+    const currentMessages = chatStorageService.getCurrentChat()?.messages || [];
+    chatStorageService.updateCurrentChatMessages([...currentMessages, botMessage]);
+    
     return botMessage;
   }
 
@@ -75,6 +110,10 @@ class ChatService {
     // Update metrics
     this.trackResponseTime(startTime);
     
+    // Save message to persistent storage
+    const currentMessages = chatStorageService.getCurrentChat()?.messages || [];
+    chatStorageService.updateCurrentChatMessages([...currentMessages, userMessage]);
+    
     return userMessage;
   }
 
@@ -86,7 +125,11 @@ class ChatService {
       messageCount: 0
     };
     
-    return this.getInitialMessages();
+    // Create a new chat with welcome messages
+    const welcomeMessages = getWelcomeMessages();
+    const newChat = chatStorageService.createChat(welcomeMessages);
+    
+    return newChat.messages;
   }
 
   // Get current chat metrics
@@ -97,6 +140,7 @@ class ChatService {
   // Update session duration
   updateSessionDuration() {
     this.metrics.sessionDuration += 1;
+    chatStorageService.updateCurrentChatMetrics(this.metrics);
   }
 
   // Private method to track response time
@@ -105,6 +149,9 @@ class ChatService {
     const responseTime = (endTime - startTime) / 1000;
     this.metrics.responseTime = responseTime;
     this.metrics.messageCount += 1;
+    
+    // Update metrics in storage
+    chatStorageService.updateCurrentChatMetrics(this.metrics);
   }
 
   // Simulate network latency

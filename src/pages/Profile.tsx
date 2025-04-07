@@ -10,6 +10,7 @@ import { Switch } from '@/components/ui/switch';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/components/ui/use-toast';
 import { User, Mail, Key, Bell, Calendar } from 'lucide-react';
+import AffiliateSettings from '@/components/profile/AffiliateSettings';
 
 const Profile = () => {
   const { user, updateProfile, logout } = useAuth();
@@ -20,8 +21,8 @@ const Profile = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   
-  const [emailReminders, setEmailReminders] = useState(true);
-  const [googleCalendarSync, setGoogleCalendarSync] = useState(false);
+  const [emailReminders, setEmailReminders] = useState(user?.preferences?.emailNotifications ?? true);
+  const [googleCalendarSync, setGoogleCalendarSync] = useState(user?.preferences?.calendarSync ?? false);
   
   const [isSubmitting, setIsSubmitting] = useState(false);
   
@@ -40,10 +41,13 @@ const Profile = () => {
     setIsSubmitting(true);
     
     try {
-      await updateProfile({ name, email });
-      toast({
-        title: "Profile updated",
-        description: "Your profile has been updated successfully.",
+      await updateProfile({
+        name, 
+        email,
+        preferences: {
+          emailNotifications: emailReminders,
+          calendarSync: googleCalendarSync
+        }
       });
       
       // Clear password fields after successful update
@@ -168,6 +172,8 @@ const Profile = () => {
               </CardFooter>
             </form>
           </Card>
+          
+          <AffiliateSettings />
         </motion.div>
         
         <motion.div

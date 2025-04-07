@@ -6,6 +6,7 @@ import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Product } from '@/types/product';
+import { affiliateService } from '@/services/affiliateService';
 
 interface ProductSuggestionProps {
   product: Product;
@@ -14,6 +15,9 @@ interface ProductSuggestionProps {
 }
 
 const ProductSuggestion: React.FC<ProductSuggestionProps> = ({ product, index, onClick }) => {
+  // Generate affiliate URL for the product
+  const affiliateUrl = affiliateService.generateAffiliateUrl(product);
+
   const handleClick = () => {
     // Track click event if callback provided
     if (onClick) {
@@ -61,7 +65,7 @@ const ProductSuggestion: React.FC<ProductSuggestionProps> = ({ product, index, o
             variant="outline"
             onClick={handleClick}
           >
-            <a href={product.link} target="_blank" rel="noopener noreferrer">
+            <a href={affiliateUrl} target="_blank" rel="noopener noreferrer">
               View on {product.platform === 'amazon' ? 'Amazon' : 'Etsy'}
               <ExternalLink className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
             </a>
