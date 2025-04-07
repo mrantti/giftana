@@ -5,23 +5,22 @@ import { ExternalLink, Gift } from 'lucide-react';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-
-export interface Product {
-  id: string;
-  title: string;
-  price: string;
-  image?: string;
-  description: string;
-  link: string;
-  platform: 'amazon' | 'etsy';
-}
+import { Product } from '@/types/product';
 
 interface ProductSuggestionProps {
   product: Product;
   index: number;
+  onClick?: () => void;
 }
 
-const ProductSuggestion: React.FC<ProductSuggestionProps> = ({ product, index }) => {
+const ProductSuggestion: React.FC<ProductSuggestionProps> = ({ product, index, onClick }) => {
+  const handleClick = () => {
+    // Track click event if callback provided
+    if (onClick) {
+      onClick();
+    }
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
@@ -60,6 +59,7 @@ const ProductSuggestion: React.FC<ProductSuggestionProps> = ({ product, index })
             asChild 
             className="w-full gap-2 group" 
             variant="outline"
+            onClick={handleClick}
           >
             <a href={product.link} target="_blank" rel="noopener noreferrer">
               View on {product.platform === 'amazon' ? 'Amazon' : 'Etsy'}

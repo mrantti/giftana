@@ -1,6 +1,6 @@
 
-import React, { useRef, useEffect, useState } from 'react';
-import { RotateCcw, Shield, Server, Activity } from 'lucide-react';
+import React, { useRef } from 'react';
+import { RotateCcw, Server, Activity } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useChatState } from '@/hooks/use-chat-state';
 import MessagesList from './MessagesList';
@@ -25,10 +25,10 @@ const ChatInterface: React.FC = () => {
   } = useChatState();
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const [showPersonaInfo, setShowPersonaInfo] = useState(false);
+  const [showPersonaInfo, setShowPersonaInfo] = React.useState(false);
   
-  // Show persona info when the persona is determined and it's sentimental
-  useEffect(() => {
+  // Show persona info when the persona is determined
+  React.useEffect(() => {
     if (persona !== 'unknown') {
       setShowPersonaInfo(true);
     }

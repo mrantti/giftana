@@ -1,33 +1,19 @@
-
 import { useState, useEffect, useCallback } from 'react';
 import { 
   ChatChoice, 
-  chatFlow, 
-  getWelcomeMessages, 
-  determinePersona, 
-  getPersonaResponse,
+  chatFlow,
   PersonaType 
 } from '@/components/chat/chatFlowConfig';
-import { Product } from '@/components/chat/ProductSuggestion';
+import { Product } from '@/types/product';
+import { Message, ChatMetrics } from '@/types/chat';
 import { useToast } from '@/components/ui/use-toast';
-import { api } from '@/services/api';
-
-export interface Message {
-  id: string;
-  content: string;
-  type: 'user' | 'bot';
-  timestamp: Date;
-  choices?: ChatChoice[];
-}
-
-interface ChatMetrics {
-  responseTime: number;
-  sessionDuration: number;
-  messageCount: number;
-}
+import { chatService } from '@/services/chatService';
+import { recommendationService } from '@/services/recommendationService';
+import { systemService } from '@/services/systemService';
+import { affiliateService } from '@/services/affiliateService';
 
 export function useChatState() {
-  const [messages, setMessages] = useState<Message[]>(getWelcomeMessages());
+  const [messages, setMessages] = useState<Message[]>(chatService.getInitialMessages());
   const [inputValue, setInputValue] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -35,21 +21,16 @@ export function useChatState() {
   const [chatHistory, setChatHistory] = useState<{[key: string]: string}>({});
   const [showTextInput, setShowTextInput] = useState(false);
   const [persona, setPersona] = useState<PersonaType>('unknown');
-  const [metrics, setMetrics] = useState<ChatMetrics>({
-    responseTime: 0,
-    sessionDuration: 0,
-    messageCount: 0
-  });
+  const [metrics, setMetrics] = useState<ChatMetrics>(chatService.getMetrics());
   const { toast } = useToast();
+  const [products, setProducts] = useState<Product[]>([]);
 
   // Enhanced check for persona updates
   useEffect(() => {
     if (Object.keys(chatHistory).length >= 3) {
-      const detectedPersona = determinePersona(chatHistory);
+      const detectedPersona = recommendationService.determinePersona(chatHistory);
       if (detectedPersona !== persona) {
         setPersona(detectedPersona);
-        // Simulating backend event tracking
-        console.log(`[ANALYTICS] Persona detected: ${detectedPersona}`);
       }
     }
   }, [chatHistory, persona]);
@@ -57,159 +38,169 @@ export function useChatState() {
   // Session duration tracker
   useEffect(() => {
     const interval = setInterval(() => {
-      setMetrics(prev => ({
-        ...prev,
-        sessionDuration: prev.sessionDuration + 1
-      }));
+      chatService.updateSessionDuration();
+      setMetrics(chatService.getMetrics());
     }, 1000);
     
     return () => clearInterval(interval);
   }, []);
 
-  // Simulate response time tracking
-  const trackResponseTime = useCallback((startTime: number) => {
-    const endTime = Date.now();
-    const responseTime = (endTime - startTime) / 1000;
-    setMetrics(prev => ({
-      ...prev,
-      responseTime,
-      messageCount: prev.messageCount + 1
-    }));
-  }, []);
-
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!inputValue.trim()) return;
     
-    const startTime = Date.now();
-    
-    // Add user message
-    const userMessage: Message = {
-      id: Date.now().toString(),
-      content: inputValue,
-      type: 'user',
-      timestamp: new Date()
-    };
-    
-    setMessages(prev => [...prev, userMessage]);
-    setInputValue('');
     setIsTyping(true);
     
-    // Process custom user input with simulated infrastructure delay
-    setTimeout(() => {
+    try {
+      // Process user message through chat service
+      const userMessage = await chatService.processUserInput(inputValue);
+      setMessages(prev => [...prev, userMessage]);
+      setInputValue('');
+      
       // More personalized response based on the persona
       let responseMessage = "Thanks for your additional information. I'll take that into account with my suggestions.";
       
-      if (persona === 'sentimental') {
-        responseMessage = "Thank you for sharing that meaningful context. I'll ensure the suggestions reflect the emotional connection you're looking to express.";
-      } else if (persona === 'busy_professional') {
-        responseMessage = "Got it. I'll use this information to find efficient yet thoughtful options for you.";
-      } else if (persona === 'last_minute') {
-        responseMessage = "Thanks - I'll find you something meaningful that can arrive quickly.";
+      if (persona !== 'unknown') {
+        responseMessage = getPersonalizedResponse(persona);
       }
       
-      const botMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        content: responseMessage,
-        type: 'bot',
-        timestamp: new Date(),
-      };
-      
-      setMessages(prev => [...prev, botMessage]);
+      // Process bot response
+      setTimeout(async () => {
+        const botMessage = await chatService.processBotResponse(responseMessage);
+        setMessages(prev => [...prev, botMessage]);
+        setIsTyping(false);
+        setMetrics(chatService.getMetrics());
+      }, 1500);
+    } catch (error) {
+      systemService.logError('Chat Input Processing', error as Error);
       setIsTyping(false);
-      trackResponseTime(startTime);
-    }, 1500);
+      toast({
+        title: "Error processing your message",
+        description: "Please try again later.",
+        variant: "destructive"
+      });
+    }
   };
 
-  const handleOptionSelect = (choiceId: string, nextStep: string) => {
-    const startTime = Date.now();
-    
-    // Find the choice text for the selected option
-    const choiceText = chatFlow[currentStep as keyof typeof chatFlow]?.choices.find(
-      choice => choice.id === choiceId
-    )?.text || choiceId;
-
-    // Add user's choice as a message
-    const userMessage: Message = {
-      id: Date.now().toString(),
-      content: choiceText,
-      type: 'user',
-      timestamp: new Date()
-    };
-    
-    setMessages(prev => [...prev, userMessage]);
-    
-    // Store the choice in chat history
-    const updatedHistory = {
-      ...chatHistory,
-      [currentStep]: choiceId
-    };
-    
-    setChatHistory(updatedHistory);
-    
-    // Determine persona after each selection for more dynamic persona detection
-    const detectedPersona = determinePersona(updatedHistory);
-    if (detectedPersona !== persona) {
-      setPersona(detectedPersona);
-    }
-    
-    // Set typing indicator
+  const handleOptionSelect = async (choiceId: string, nextStep: string) => {
     setIsTyping(true);
     
-    // Process next step after a short delay
-    setTimeout(() => {
-      setIsTyping(false);
-      trackResponseTime(startTime);
+    try {
+      // Find the choice text for the selected option
+      const choiceText = chatFlow[currentStep as keyof typeof chatFlow]?.choices.find(
+        choice => choice.id === choiceId
+      )?.text || choiceId;
+
+      // Process user's choice through chat service
+      const userMessage = await chatService.processUserChoice(choiceText);
+      setMessages(prev => [...prev, userMessage]);
       
-      if (nextStep === 'suggestions') {
-        // When we reach suggestions, show product recommendations
-        // Use persona-specific messaging if available
-        const suggestionsMessage = getPersonaResponse(persona);
+      // Store the choice in chat history
+      const updatedHistory = {
+        ...chatHistory,
+        [currentStep]: choiceId
+      };
+      
+      setChatHistory(updatedHistory);
+      
+      // Determine persona after each selection for more dynamic persona detection
+      const detectedPersona = recommendationService.determinePersona(updatedHistory);
+      if (detectedPersona !== persona) {
+        setPersona(detectedPersona);
+      }
+      
+      // Process next step after a short delay
+      setTimeout(async () => {
+        if (nextStep === 'suggestions') {
+          // When we reach suggestions, show product recommendations
+          await handleSuggestions();
+        } else if (nextStep === 'custom_input') {
+          setShowTextInput(true);
+          setIsTyping(false);
+        } else {
+          // Otherwise, continue with the guided flow
+          await handleNextStep(nextStep);
+        }
         
-        const botMessage: Message = {
-          id: (Date.now() + 1).toString(),
-          content: suggestionsMessage,
-          type: 'bot',
-          timestamp: new Date()
-        };
+        setMetrics(chatService.getMetrics());
+      }, 1000);
+    } catch (error) {
+      systemService.logError('Option Selection', error as Error);
+      setIsTyping(false);
+      toast({
+        title: "Error processing your selection",
+        description: "Please try again.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  // Handle product suggestions step
+  const handleSuggestions = async () => {
+    try {
+      // Use persona-specific messaging
+      const suggestionsMessage = recommendationService.getPersonaResponse(persona);
+      
+      // Process bot response for suggestions
+      const botMessage = await chatService.processBotResponse(suggestionsMessage);
+      setMessages(prev => [...prev, botMessage]);
+      
+      // Get product recommendations based on interests and budget
+      const interests = getInterestsFromHistory(chatHistory);
+      const budget = chatHistory['budget'];
+      
+      // Fetch product recommendations
+      const recommendedProducts = await recommendationService.getGiftRecommendations(interests, budget);
+      setProducts(recommendedProducts);
+      
+      // Track product impressions for analytics
+      affiliateService.trackProductImpression(recommendedProducts);
+      
+      setShowSuggestions(true);
+      setIsTyping(false);
+      
+      // After showing suggestions, add the "anything else" message
+      setTimeout(async () => {
+        const finalMessage = await chatService.processBotResponse(
+          chatFlow.final_question.message,
+          chatFlow.final_question.choices
+        );
+        
+        setMessages(prev => [...prev, finalMessage]);
+        setCurrentStep('final_question');
+      }, 1000);
+    } catch (error) {
+      systemService.logError('Product Suggestions', error as Error);
+      setIsTyping(false);
+      toast({
+        title: "Error getting product suggestions",
+        description: "Please try again later.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  // Handle next step in the guided flow
+  const handleNextStep = async (nextStep: string) => {
+    try {
+      const nextStepData = chatFlow[nextStep as keyof typeof chatFlow];
+      
+      if (nextStepData) {
+        const botMessage = await chatService.processBotResponse(
+          nextStepData.message,
+          nextStepData.choices
+        );
         
         setMessages(prev => [...prev, botMessage]);
-        setShowSuggestions(true);
-        
-        // After showing suggestions, add the "anything else" message
-        setTimeout(() => {
-          const finalMessage: Message = {
-            id: (Date.now() + 2).toString(),
-            content: chatFlow.final_question.message,
-            type: 'bot',
-            timestamp: new Date(),
-            choices: chatFlow.final_question.choices
-          };
-          
-          setMessages(prev => [...prev, finalMessage]);
-          setCurrentStep('final_question');
-        }, 1000);
-      } else if (nextStep === 'custom_input') {
-        setShowTextInput(true);
-      } else {
-        // Otherwise, continue with the guided flow
-        const nextStepData = chatFlow[nextStep as keyof typeof chatFlow];
-        
-        if (nextStepData) {
-          const botMessage: Message = {
-            id: (Date.now() + 1).toString(),
-            content: nextStepData.message,
-            type: 'bot',
-            timestamp: new Date(),
-            choices: nextStepData.choices
-          };
-          
-          setMessages(prev => [...prev, botMessage]);
-          setCurrentStep(nextStep);
-        }
+        setCurrentStep(nextStep);
       }
-    }, 1000);
+      
+      setIsTyping(false);
+    } catch (error) {
+      systemService.logError('Next Step Processing', error as Error);
+      setIsTyping(false);
+    }
   };
 
   const handleReset = () => {
@@ -217,28 +208,50 @@ export function useChatState() {
       title: "Chat reset",
       description: "The conversation has been reset to the beginning."
     });
-    setMessages(getWelcomeMessages());
+    
+    // Reset through chat service
+    const initialMessages = chatService.resetChat();
+    
+    setMessages(initialMessages);
     setShowSuggestions(false);
     setCurrentStep('welcome');
     setChatHistory({});
     setShowTextInput(false);
     setPersona('unknown');
-    setMetrics({
-      responseTime: 0,
-      sessionDuration: 0,
-      messageCount: 0
-    });
+    setMetrics(chatService.getMetrics());
+    setProducts([]);
   };
 
-  // This would connect to a real backend service in a production environment
-  const getSystemHealth = useCallback(() => {
-    return {
-      status: 'healthy',
-      latency: `${(Math.random() * 50 + 25).toFixed(0)}ms`,
-      apiStatus: 'operational',
-      modelLatency: `${(Math.random() * 200 + 300).toFixed(0)}ms`
-    };
+  const trackProductClick = useCallback((product: Product) => {
+    affiliateService.trackProductClick(product);
   }, []);
+
+  // Helper function to extract interests from chat history
+  const getInterestsFromHistory = (history: {[key: string]: string}): string[] => {
+    const interestKey = 'interests';
+    if (history[interestKey]) {
+      return [history[interestKey]];
+    }
+    return ['tech', 'gardening']; // Default interests as fallback
+  };
+
+  // Helper function for personalized responses
+  const getPersonalizedResponse = (personaType: PersonaType): string => {
+    switch(personaType) {
+      case 'sentimental':
+        return "Thank you for sharing that meaningful context. I'll ensure the suggestions reflect the emotional connection you're looking to express.";
+      case 'busy_professional':
+        return "Got it. I'll use this information to find efficient yet thoughtful options for you.";
+      case 'last_minute':
+        return "Thanks - I'll find you something meaningful that can arrive quickly.";
+      case 'corporate':
+        return "I understand the professional context. I'll suggest appropriate options for your business relationship.";
+      case 'budget_conscious':
+        return "Thanks for the details. I'll find options that offer great value while still being meaningful.";
+      default:
+        return "Thanks for your additional information. I'll take that into account with my suggestions.";
+    }
+  };
 
   return {
     messages,
@@ -252,6 +265,8 @@ export function useChatState() {
     showTextInput,
     persona,
     metrics,
-    systemHealth: getSystemHealth()
+    systemHealth: systemService.getSystemHealth(),
+    products,
+    trackProductClick
   };
 }

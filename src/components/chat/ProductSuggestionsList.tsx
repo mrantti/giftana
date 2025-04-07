@@ -2,46 +2,23 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import ProductSuggestion, { Product } from './ProductSuggestion';
-
-// Mock product data
-export const mockProducts: Product[] = [
-  {
-    id: '1',
-    title: 'Premium Gardening Tool Set',
-    price: '$42.99',
-    image: 'https://images.unsplash.com/photo-1591902916941-fb53ebe3d578?q=80&w=500&auto=format&fit=crop',
-    description: 'This ergonomic garden tool set includes pruners, trowel, rake, and cultivator - perfect for the gardening enthusiast!',
-    link: 'https://amazon.com',
-    platform: 'amazon'
-  },
-  {
-    id: '2',
-    title: 'Personalized Plant Journal',
-    price: '$24.50',
-    image: 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?q=80&w=500&auto=format&fit=crop',
-    description: 'A beautiful handcrafted journal to track garden growth, plant care, and seasonal changes.',
-    link: 'https://etsy.com',
-    platform: 'etsy'
-  },
-  {
-    id: '3',
-    title: 'Indoor Herb Garden Kit',
-    price: '$38.95',
-    image: 'https://images.unsplash.com/photo-1522448746354-da4936934201?q=80&w=500&auto=format&fit=crop',
-    description: 'Self-watering indoor garden kit with basil, mint, and cilantro seeds. Includes LED grow lights.',
-    link: 'https://amazon.com',
-    platform: 'amazon'
-  }
-];
+import ProductSuggestion from './ProductSuggestion';
+import { Product } from '@/types/product';
+import { useChatState } from '@/hooks/use-chat-state';
 
 interface ProductSuggestionsListProps {
   products?: Product[];
 }
 
-const ProductSuggestionsList: React.FC<ProductSuggestionsListProps> = ({ 
-  products = mockProducts 
-}) => {
+const ProductSuggestionsList: React.FC<ProductSuggestionsListProps> = () => {
+  // Get products from chat state
+  const { products, trackProductClick } = useChatState();
+  
+  // Handle product click
+  const handleProductClick = (product: Product) => {
+    trackProductClick(product);
+  };
+  
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -55,6 +32,7 @@ const ProductSuggestionsList: React.FC<ProductSuggestionsListProps> = ({
             key={product.id} 
             product={product} 
             index={index}
+            onClick={() => handleProductClick(product)}
           />
         ))}
       </div>
