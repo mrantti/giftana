@@ -22,7 +22,9 @@ const ChatInterface: React.FC = () => {
     showTextInput,
     persona,
     metrics,
-    systemHealth
+    systemHealth,
+    products,
+    trackProductClick
   } = useChatState();
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -131,7 +133,7 @@ const ChatInterface: React.FC = () => {
           showPersonaInfo={showPersonaInfo}
         />
         
-        {showSuggestions && <ProductSuggestionsList />}
+        {showSuggestions && <ProductSuggestionsList products={products} onProductClick={trackProductClick} />}
         
         <div ref={messagesEndRef} />
       </div>

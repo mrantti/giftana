@@ -26,14 +26,10 @@ export function useResetHandler({
   const { toast } = useToast();
 
   const handleReset = () => {
-    toast({
-      title: "Chat reset",
-      description: "The conversation has been reset to the beginning."
-    });
-    
     // Reset through chat service
     const initialMessages = chatService.resetChat();
     
+    // Update all state to initial values
     setMessages(initialMessages);
     setShowSuggestions(false);
     setCurrentStep('welcome');
@@ -42,6 +38,12 @@ export function useResetHandler({
     setPersona('unknown');
     setMetrics(chatService.getMetrics());
     setProducts([]);
+    
+    // Show toast notification
+    toast({
+      title: "Chat reset",
+      description: "The conversation has been reset to the beginning."
+    });
   };
 
   return { handleReset };
