@@ -10,7 +10,7 @@ interface ChatMessageProps {
   content: string;
   type: MessageType;
   isLoading?: boolean;
-  timestamp?: Date;
+  timestamp?: Date | string;
 }
 
 const ChatMessage: React.FC<ChatMessageProps> = ({
@@ -20,6 +20,19 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
   timestamp = new Date(),
 }) => {
   const isUser = type === 'user';
+  
+  // Ensure timestamp is a Date object
+  const messageTime = timestamp instanceof Date ? timestamp : new Date(timestamp);
+  
+  // Format the time using a safe approach with error handling
+  const formattedTime = (() => {
+    try {
+      return messageTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    } catch (error) {
+      console.error('Error formatting timestamp:', error);
+      return ''; // Fallback to empty string if formatting fails
+    }
+  })();
 
   return (
     <motion.div
@@ -62,7 +75,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
             "text-xs mt-1 opacity-70",
             isUser ? "text-right" : "text-left"
           )}>
-            {timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+            {formattedTime}
           </div>
         </div>
       </div>
