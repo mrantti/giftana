@@ -82,10 +82,12 @@ const MessagesList: React.FC<MessagesListProps> = ({
           </motion.div>
         ))}
         
+        {/* Only show typing indicator when actually typing and no new message has been added */}
         {isTyping && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
           >
             <ChatMessage

@@ -53,7 +53,7 @@ export function useSubmitHandler({
         responseMessage = getPersonalizedResponse(persona);
       }
       
-      // Process bot response
+      // Process bot response with shorter delay
       setTimeout(async () => {
         // If we're on the memory description step, show a specific acknowledgment
         if (currentStep === 'describe_memory' || currentStep === 'custom_input') {
@@ -64,7 +64,7 @@ export function useSubmitHandler({
           if (currentStep === 'describe_memory') {
             setTimeout(async () => {
               await handleNextStep('gift_preference');
-            }, 1000);
+            }, 400); // Reduced from 1000ms to 400ms
           }
         } else {
           const botMessage = await chatService.processBotResponse(responseMessage);
@@ -74,7 +74,7 @@ export function useSubmitHandler({
         setIsTyping(false);
         setShowTextInput(false);
         setMetrics(chatService.getMetrics());
-      }, 1500);
+      }, 500); // Reduced from 1500ms to 500ms
     } catch (error) {
       systemService.logError('Chat Input Processing', error as Error);
       setIsTyping(false);

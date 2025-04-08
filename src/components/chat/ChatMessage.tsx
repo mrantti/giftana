@@ -71,12 +71,15 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
             <div className="whitespace-pre-line">{content}</div>
           )}
           
-          <div className={cn(
-            "text-xs mt-1 opacity-70",
-            isUser ? "text-right" : "text-left"
-          )}>
-            {formattedTime}
-          </div>
+          {/* Only show timestamp for non-loading messages */}
+          {!isLoading && (
+            <div className={cn(
+              "text-xs mt-1 opacity-70",
+              isUser ? "text-right" : "text-left"
+            )}>
+              {formattedTime}
+            </div>
+          )}
         </div>
       </div>
     </motion.div>

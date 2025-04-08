@@ -62,7 +62,7 @@ export function useOptionHandler({
         setPersona(detectedPersona);
       }
       
-      // Process next step after a short delay
+      // Process next step immediately with a shorter delay
       setTimeout(async () => {
         if (nextStep === 'suggestions') {
           // When we reach suggestions, show product recommendations
@@ -76,7 +76,7 @@ export function useOptionHandler({
         }
         
         setMetrics(chatService.getMetrics());
-      }, 1000);
+      }, 400); // Reduced from 1000ms to 400ms for faster responses
     } catch (error) {
       systemService.logError('Option Selection', error as Error);
       setIsTyping(false);

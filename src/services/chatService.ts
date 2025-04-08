@@ -1,11 +1,10 @@
-
 import { Message, ChatMetrics } from '@/types/chat';
 import { getWelcomeMessages } from '@/components/chat/chatFlowConfig';
 import { chatStorageService } from './chatStorageService';
 
-// Simulated service latency
+// Simulated service latency - reducing values for faster responses
 const SERVICE_LATENCY = {
-  respond: () => 800 + Math.random() * 1200, // 800-2000ms
+  respond: () => 300 + Math.random() * 400, // 300-700ms (was 800-2000ms)
 };
 
 class ChatService {
@@ -161,7 +160,7 @@ class ChatService {
     chatStorageService.updateCurrentChatMetrics(this.metrics);
   }
 
-  // Simulate network latency
+  // Simulate network latency - reduce the delay for faster responses
   private simulateNetworkLatency(ms: number): Promise<void> {
     return new Promise(resolve => setTimeout(resolve, ms));
   }
