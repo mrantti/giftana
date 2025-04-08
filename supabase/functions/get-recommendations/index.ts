@@ -121,7 +121,7 @@ const productDatabase: Record<string, Product[]> = {
       title: 'Bestseller Book Box Set',
       price: '$49.99',
       image: 'https://images.unsplash.com/photo-1512820790803-83ca734da794?q=80&w=500&auto=format&fit=crop',
-      description: 'Collection of this year's most acclaimed novels, beautifully boxed.',
+      description: "Collection of this year's most acclaimed novels, beautifully boxed.",
       link: 'https://amazon.com/product/book-1',
       platform: 'amazon'
     },
