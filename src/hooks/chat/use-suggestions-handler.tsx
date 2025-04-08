@@ -1,4 +1,3 @@
-
 import { Product } from '@/types/product';
 import { Message } from '@/types/chat';
 import { useToast } from '@/components/ui/use-toast';
@@ -6,9 +5,8 @@ import { chatService } from '@/services/chatService';
 import { recommendationService } from '@/services/recommendationService';
 import { systemService } from '@/services/systemService';
 import { affiliateService } from '@/services/affiliateService';
-import { PersonaType } from '@/components/chat/chatFlowConfig';
-import { chatFlow } from '@/components/chat/chatFlowConfig';
-import { getInterestsFromHistory } from './utils/persona-utils';
+import { PersonaType, chatFlow } from '@/components/chat/chatFlowConfig';
+import { getInterestsFromHistory } from '@/components/chat/utils/persona-utils';
 
 export function useSuggestionsHandler({
   setMessages,

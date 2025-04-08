@@ -1,5 +1,5 @@
 
-import { PersonaType } from '@/components/chat/chatFlowConfig';
+import { PersonaType } from '@/components/chat/types/flow-types';
 import { api } from '@/services/api';
 import { Product } from '@/types/product';
 
