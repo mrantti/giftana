@@ -1,3 +1,4 @@
+
 import { PersonaType } from '@/components/chat/types/flow-types';
 import { api } from '@/services/api';
 import { Product } from '@/types/product';
@@ -124,7 +125,8 @@ class RecommendationService {
       const { data, error } = await supabase.functions.invoke('get-recommendations', {
         body: { 
           interests, 
-          priceRange: budgetValue 
+          priceRange: budgetValue,
+          useAmazonApi: true
         }
       });
       
@@ -181,6 +183,7 @@ class RecommendationService {
           priceRange: analysis.priceRange || 'medium',
           keywords: analysis.keywords || [],
           giftCategory: analysis.giftCategory || 'general',
+          useAmazonApi: true
         }
       });
       

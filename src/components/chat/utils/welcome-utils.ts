@@ -1,6 +1,6 @@
 
 import { Message } from '@/types/chat';
-import { chatFlow } from '../config/chat-flow-config';
+import { chatFlow } from '../chatFlowConfig';
 
 // Welcome messages based on the chat flow
 export const getWelcomeMessages = (): Message[] => [
