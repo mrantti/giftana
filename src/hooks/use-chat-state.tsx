@@ -15,7 +15,7 @@ export function useChatState() {
   const [inputValue, setInputValue] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
-  const [currentStep, setCurrentStep] = useState('welcome');
+  const [currentStep, setCurrentStep] = useState('welcome'); // Start directly with welcome which now has time options
   const [chatHistory, setChatHistory] = useState<{[key: string]: string}>({});
   const [showTextInput, setShowTextInput] = useState(false);
   const [persona, setPersona] = useState<PersonaType>('unknown');

@@ -1,4 +1,3 @@
-
 export interface ChatChoice {
   id: string;
   text: string;
@@ -21,7 +20,9 @@ export const chatFlow: ChatFlowConfig = {
   welcome: {
     message: "Hi there! I'm your gift-finding assistant. Let's find the perfect gift together!",
     choices: [
-      { id: 'start', text: "Let's get started", nextStep: 'time_urgency' }
+      { id: 'time_urgent', text: "As soon as possible (days)", nextStep: 'recipient' },
+      { id: 'time_soon', text: "Within a couple weeks", nextStep: 'recipient' },
+      { id: 'time_planning', text: "I'm planning ahead", nextStep: 'recipient' }
     ]
   },
   time_urgency: {
@@ -164,7 +165,7 @@ export const chatFlow: ChatFlowConfig = {
   }
 };
 
-// Welcome messages based on the chat flow
+// Welcome messages based on the chat flow - updated to start with time urgency
 export const getWelcomeMessages = () => [
   {
     id: 'welcome-1',
@@ -193,13 +194,15 @@ export const determinePersona = (chatHistory: {[key: string]: string}): PersonaT
   }
   
   // Check for Busy Professional
-  else if (chatHistory['time_urgency'] === 'soon' && 
+  else if (chatHistory['time_urgency'] === 'soon' || 
+      chatHistory['welcome'] === 'time_soon' ||
       (chatHistory['gift_preference'] === 'practical' || chatHistory['detail_question'] === 'skip')) {
     persona = 'busy_professional';
   }
   
   // Check for Last-Minute Larry
-  else if (chatHistory['time_urgency'] === 'urgent') {
+  else if (chatHistory['time_urgency'] === 'urgent' || 
+          chatHistory['welcome'] === 'time_urgent') {
     persona = 'last_minute';
   }
   
