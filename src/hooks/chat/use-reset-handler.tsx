@@ -3,6 +3,7 @@ import { ChatMetrics } from '@/types/chat';
 import { useToast } from '@/components/ui/use-toast';
 import { chatService } from '@/services/chatService';
 import { PersonaType } from '@/components/chat/chatFlowConfig';
+import { chatStorageService } from '@/services/chatStorageService';
 
 export function useResetHandler({
   setMessages,
@@ -26,8 +27,12 @@ export function useResetHandler({
   const { toast } = useToast();
 
   const handleReset = () => {
-    // Reset through chat service
+    // Reset through chat service - this creates a new chat with welcome messages
     const initialMessages = chatService.resetChat();
+    
+    // Ensure that local storage is cleared properly
+    // Create a brand new chat and set it as current
+    chatStorageService.createChat(initialMessages);
     
     // Update all state to initial values
     setMessages(initialMessages);

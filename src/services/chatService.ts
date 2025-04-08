@@ -119,11 +119,18 @@ class ChatService {
 
   // Reset the chat session
   resetChat(): Message[] {
+    // Reset metrics
     this.metrics = {
       responseTime: 0,
       sessionDuration: 0,
       messageCount: 0
     };
+    
+    // Clear local storage for current chat
+    const currentChat = chatStorageService.getCurrentChat();
+    if (currentChat) {
+      chatStorageService.deleteChat(currentChat.id);
+    }
     
     // Create a new chat with welcome messages
     const welcomeMessages = getWelcomeMessages();
