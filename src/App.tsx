@@ -94,10 +94,10 @@ const App = () => (
               <Route path="/" element={<PublicLayout><Home /></PublicLayout>} />
               <Route path="/login" element={<AuthLayout><AuthForm /></AuthLayout>} />
               <Route path="/chat" element={<PublicLayout><Chat /></PublicLayout>} />
+              <Route path="/events" element={<PrivateRoute><Events /></PrivateRoute>} />
               
               {/* Protected routes */}
               <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
-              <Route path="/events" element={<PrivateRoute><Events /></PrivateRoute>} />
               <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
               
               {/* Catch-all route */}
