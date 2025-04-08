@@ -1,1 +1,8 @@
+
 project_id = "hypmeuqtykuevymutbam"
+
+[functions.analyze-preferences]
+verify_jwt = false
+
+[functions.get-recommendations]
+verify_jwt = false

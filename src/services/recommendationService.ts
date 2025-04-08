@@ -1,7 +1,7 @@
-
 import { PersonaType } from '@/components/chat/types/flow-types';
 import { api } from '@/services/api';
 import { Product } from '@/types/product';
+import { supabase } from '@/integrations/supabase/client';
 
 // Service for handling recommendations and persona detection
 class RecommendationService {
@@ -87,25 +87,119 @@ class RecommendationService {
     }
   }
 
-  // Get gift recommendations based on interests and budget
+  // Analyze chat history using OpenAI (new method)
+  async analyzePreferences(chatHistory: {[key: string]: string}): Promise<any> {
+    try {
+      const { data, error } = await supabase.functions.invoke('analyze-preferences', {
+        body: { chatHistory }
+      });
+      
+      if (error) {
+        console.error('[ERROR] Failed to analyze preferences:', error);
+        throw error;
+      }
+      
+      console.log('[INFO] Preferences analysis:', data);
+      return data;
+    } catch (error) {
+      console.error('[ERROR] Error in analyzePreferences:', error);
+      throw error;
+    }
+  }
+
+  // Get gift recommendations using Edge Function (updated method)
   async getGiftRecommendations(interests: string[], budget?: string): Promise<Product[]> {
-    let budgetValue: number | undefined;
+    let budgetValue: string | undefined;
     
     // Parse budget from string selection
     if (budget) {
-      if (budget === 'budget_low') budgetValue = 25;
-      else if (budget === 'budget_medium') budgetValue = 50;
-      else if (budget === 'budget_high') budgetValue = 100;
-      else if (budget === 'budget_premium') budgetValue = 200;
+      if (budget === 'budget_low') budgetValue = 'low';
+      else if (budget === 'budget_medium') budgetValue = 'medium';
+      else if (budget === 'budget_high') budgetValue = 'high';
+      else if (budget === 'budget_premium') budgetValue = 'premium';
     }
     
     try {
-      // Call the external API service to get product recommendations
-      return await api.getGiftSuggestions(interests, budgetValue);
+      // Call our Edge Function for recommendations
+      const { data, error } = await supabase.functions.invoke('get-recommendations', {
+        body: { 
+          interests, 
+          priceRange: budgetValue 
+        }
+      });
+      
+      if (error) {
+        console.error('[ERROR] Failed to fetch gift recommendations:', error);
+        throw error;
+      }
+      
+      if (data.products && Array.isArray(data.products)) {
+        return data.products;
+      }
+      
+      // Call the external API service as fallback if our function fails
+      console.log('[INFO] Using fallback recommendation API');
+      return await api.getGiftSuggestions(interests, budgetValue ? parseInt(budgetValue) : undefined);
     } catch (error) {
       console.error('[ERROR] Failed to fetch gift recommendations', error);
-      // Return empty array as fallback
-      return [];
+      
+      // Use mock data as final fallback
+      console.log('[INFO] Using mock data as fallback');
+      return [
+        {
+          id: 'fallback-1',
+          title: 'Bestseller Books Collection',
+          price: '$49.99',
+          image: 'https://images.unsplash.com/photo-1512820790803-83ca734da794?q=80&w=500&auto=format&fit=crop',
+          description: 'A collection of this year\'s most popular books.',
+          link: 'https://amazon.com/product/fallback-1',
+          platform: 'amazon'
+        },
+        {
+          id: 'fallback-2',
+          title: 'Premium Wireless Headphones',
+          price: '$79.99',
+          image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=500&auto=format&fit=crop',
+          description: 'High-quality wireless headphones with noise cancellation.',
+          link: 'https://amazon.com/product/fallback-2',
+          platform: 'amazon'
+        }
+      ];
+    }
+  }
+  
+  // NEW METHOD: Get recommendations based on full chat analysis
+  async getSmartRecommendations(chatHistory: {[key: string]: string}): Promise<Product[]> {
+    try {
+      // First analyze preferences using OpenAI
+      const analysis = await this.analyzePreferences(chatHistory);
+      
+      // Then use those preferences to get product recommendations
+      const { data, error } = await supabase.functions.invoke('get-recommendations', {
+        body: { 
+          interests: analysis.interests || ['general'],
+          priceRange: analysis.priceRange || 'medium',
+          keywords: analysis.keywords || [],
+          giftCategory: analysis.giftCategory || 'general',
+        }
+      });
+      
+      if (error) {
+        console.error('[ERROR] Failed to fetch smart recommendations:', error);
+        throw error;
+      }
+      
+      if (data.products && Array.isArray(data.products)) {
+        return data.products;
+      }
+      
+      throw new Error('No products returned from recommendation function');
+    } catch (error) {
+      console.error('[ERROR] Failed to get smart recommendations', error);
+      
+      // Fall back to basic recommendation method
+      const interests = chatHistory['interests'] ? [chatHistory['interests']] : ['general'];
+      return this.getGiftRecommendations(interests, chatHistory['budget']);
     }
   }
 }

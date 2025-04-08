@@ -1,3 +1,4 @@
+
 import { Product } from '@/types/product';
 import { Message } from '@/types/chat';
 import { useToast } from '@/components/ui/use-toast';
@@ -5,8 +6,8 @@ import { chatService } from '@/services/chatService';
 import { recommendationService } from '@/services/recommendationService';
 import { systemService } from '@/services/systemService';
 import { affiliateService } from '@/services/affiliateService';
-import { PersonaType, chatFlow } from '@/components/chat/chatFlowConfig';
-import { getInterestsFromHistory } from '@/components/chat/utils/persona-utils';
+import { PersonaType } from '@/components/chat/types/flow-types';
+import { chatFlow } from '@/components/chat/chatFlowConfig';
 
 export function useSuggestionsHandler({
   setMessages,
@@ -36,16 +37,15 @@ export function useSuggestionsHandler({
       const botMessage = await chatService.processBotResponse(suggestionsMessage);
       setMessages(prev => [...prev, botMessage]);
       
-      // Get product recommendations based on interests and budget
-      const interests = getInterestsFromHistory(chatHistory);
-      const budget = chatHistory['budget'];
+      // Get smart recommendations based on the entire chat history
+      // This will analyze the conversation using OpenAI and provide tailored recommendations
+      setIsTyping(true);
       
-      // Fetch product recommendations
-      const recommendedProducts = await recommendationService.getGiftRecommendations(interests, budget);
-      setProducts(recommendedProducts);
+      const smartRecommendations = await recommendationService.getSmartRecommendations(chatHistory);
+      setProducts(smartRecommendations);
       
       // Track product impressions for analytics
-      affiliateService.trackProductImpression(recommendedProducts);
+      affiliateService.trackProductImpression(smartRecommendations);
       
       setShowSuggestions(true);
       setIsTyping(false);
