@@ -26,8 +26,14 @@ export function useSubmitHandler({
 }) {
   const { toast } = useToast();
 
-  const handleSubmit = async (e: React.FormEvent, inputVal: string) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Get the input value from the form
+    const form = e.target as HTMLFormElement;
+    const formData = new FormData(form);
+    const inputElement = form.querySelector('input') as HTMLInputElement;
+    const inputVal = inputElement?.value || '';
     
     if (!inputVal.trim()) return;
     

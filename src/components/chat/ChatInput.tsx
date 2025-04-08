@@ -25,6 +25,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
           className="pr-10"
+          name="chatInput"
         />
         {inputValue && (
           <Button
