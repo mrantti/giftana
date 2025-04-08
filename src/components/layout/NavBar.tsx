@@ -2,15 +2,17 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Gift, Calendar, MessageCircle, User, Menu, X } from 'lucide-react';
+import { Gift, Calendar, MessageCircle, User, Menu, X, LogIn } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useAuth } from '@/context/AuthContext';
 
 const NavBar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
   const isMobile = useIsMobile();
+  const { user } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -25,12 +27,18 @@ const NavBar = () => {
     setIsMenuOpen(false);
   }, [location.pathname]);
 
-  const links = [
-    { to: '/dashboard', label: 'Dashboard', icon: <Gift className="h-4 w-4" /> },
+  // Define links based on authentication status
+  const commonLinks = [
     { to: '/chat', label: 'Gift Chat', icon: <MessageCircle className="h-4 w-4" /> },
     { to: '/events', label: 'Events', icon: <Calendar className="h-4 w-4" /> },
+  ];
+  
+  const authLinks = [
+    { to: '/dashboard', label: 'Dashboard', icon: <Gift className="h-4 w-4" /> },
     { to: '/profile', label: 'Profile', icon: <User className="h-4 w-4" /> },
   ];
+
+  const links = user ? [...commonLinks, ...authLinks] : commonLinks;
 
   const isActive = (path: string) => location.pathname === path;
 
@@ -86,27 +94,47 @@ const NavBar = () => {
                       <span>{link.label}</span>
                     </Link>
                   ))}
+                  {!user && (
+                    <Link
+                      to="/login"
+                      className="flex items-center space-x-2 p-3 rounded-md transition-colors hover:bg-secondary"
+                    >
+                      <LogIn className="h-4 w-4" />
+                      <span>Sign In</span>
+                    </Link>
+                  )}
                 </nav>
               </motion.div>
             )}
           </>
         ) : (
-          <nav className="hidden md:flex items-center space-x-1">
-            {links.map((link) => (
-              <Link
-                key={link.to}
-                to={link.to}
-                className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm transition-colors ${
-                  isActive(link.to)
-                    ? 'bg-giftana-teal/10 text-giftana-teal font-medium'
-                    : 'hover:bg-secondary'
-                }`}
-              >
-                {link.icon}
-                <span>{link.label}</span>
+          <div className="flex items-center gap-2">
+            <nav className="hidden md:flex items-center space-x-1">
+              {links.map((link) => (
+                <Link
+                  key={link.to}
+                  to={link.to}
+                  className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm transition-colors ${
+                    isActive(link.to)
+                      ? 'bg-giftana-teal/10 text-giftana-teal font-medium'
+                      : 'hover:bg-secondary'
+                  }`}
+                >
+                  {link.icon}
+                  <span>{link.label}</span>
+                </Link>
+              ))}
+            </nav>
+            
+            {!user && (
+              <Link to="/login">
+                <Button variant="secondary" size="sm" className="flex items-center gap-1">
+                  <LogIn className="h-3.5 w-3.5" />
+                  <span>Sign In</span>
+                </Button>
               </Link>
-            ))}
-          </nav>
+            )}
+          </div>
         )}
       </div>
     </motion.header>

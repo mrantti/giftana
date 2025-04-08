@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import EventsCalendar from '@/components/events/EventsCalendar';
 import EventForm, { Event } from '@/components/events/EventForm';
 import { useToast } from '@/components/ui/use-toast';
+import { useAuth } from '@/context/AuthContext';
 
 // Mock events data
 const mockEvents: Event[] = [
@@ -31,10 +32,19 @@ const mockEvents: Event[] = [
 ];
 
 const Events = () => {
+  const { user } = useAuth();
   const [events, setEvents] = useState<Event[]>(mockEvents);
   const [showEventForm, setShowEventForm] = useState(false);
   const [currentEvent, setCurrentEvent] = useState<Event | null>(null);
+  const [localEvents, setLocalEvents] = useState<Event[]>(() => {
+    // Load events from localStorage if available
+    const savedEvents = localStorage.getItem('giftana_events');
+    return savedEvents ? JSON.parse(savedEvents) : mockEvents;
+  });
   const { toast } = useToast();
+
+  // Use user's events if logged in, otherwise use local storage
+  const displayEvents = user ? events : localEvents;
 
   const handleAddEvent = () => {
     setCurrentEvent(null);
@@ -47,24 +57,53 @@ const Events = () => {
   };
 
   const handleDeleteEvent = (eventId: string) => {
-    setEvents(events.filter(event => event.id !== eventId));
+    if (user) {
+      setEvents(events.filter(event => event.id !== eventId));
+    } else {
+      const updatedEvents = localEvents.filter(event => event.id !== eventId);
+      setLocalEvents(updatedEvents);
+      localStorage.setItem('giftana_events', JSON.stringify(updatedEvents));
+    }
   };
 
   const handleSaveEvent = (eventData: Omit<Event, 'id'>) => {
-    if (currentEvent) {
-      // Edit existing event
-      setEvents(events.map(event => 
-        event.id === currentEvent.id 
-          ? { ...event, ...eventData } 
-          : event
-      ));
+    if (user) {
+      if (currentEvent) {
+        // Edit existing event
+        setEvents(events.map(event => 
+          event.id === currentEvent.id 
+            ? { ...event, ...eventData } 
+            : event
+        ));
+      } else {
+        // Add new event
+        const newEvent: Event = {
+          id: Date.now().toString(),
+          ...eventData
+        };
+        setEvents([...events, newEvent]);
+      }
     } else {
-      // Add new event
-      const newEvent: Event = {
-        id: Date.now().toString(),
-        ...eventData
-      };
-      setEvents([...events, newEvent]);
+      // Handle local storage for non-authenticated users
+      if (currentEvent) {
+        // Edit existing event
+        const updatedEvents = localEvents.map(event => 
+          event.id === currentEvent.id 
+            ? { ...event, ...eventData } 
+            : event
+        );
+        setLocalEvents(updatedEvents);
+        localStorage.setItem('giftana_events', JSON.stringify(updatedEvents));
+      } else {
+        // Add new event
+        const newEvent: Event = {
+          id: Date.now().toString(),
+          ...eventData
+        };
+        const updatedEvents = [...localEvents, newEvent];
+        setLocalEvents(updatedEvents);
+        localStorage.setItem('giftana_events', JSON.stringify(updatedEvents));
+      }
     }
     
     setShowEventForm(false);
@@ -102,7 +141,7 @@ const Events = () => {
             transition={{ duration: 0.3 }}
           >
             <EventsCalendar 
-              events={events}
+              events={displayEvents}
               onAddEvent={handleAddEvent}
               onEditEvent={handleEditEvent}
               onDeleteEvent={handleDeleteEvent}
