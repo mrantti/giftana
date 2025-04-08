@@ -30,18 +30,14 @@ export function useResetHandler({
     // Reset through chat service - this creates a new chat with welcome messages
     const initialMessages = chatService.resetChat();
     
-    // Ensure that local storage is cleared properly
-    // Create a brand new chat and set it as current
-    chatStorageService.createChat(initialMessages);
-    
-    // Update all state to initial values
-    setMessages(initialMessages);
+    // Force a full refresh of the app state
+    setMessages([...initialMessages]); // Use spread to ensure a new array reference
     setShowSuggestions(false);
     setCurrentStep('welcome');
     setChatHistory({});
     setShowTextInput(false);
     setPersona('unknown');
-    setMetrics(chatService.getMetrics());
+    setMetrics({...chatService.getMetrics()}); // Use spread to ensure a new object reference
     setProducts([]);
     
     // Show toast notification

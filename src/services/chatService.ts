@@ -126,11 +126,11 @@ class ChatService {
       messageCount: 0
     };
     
-    // Clear local storage for current chat
-    const currentChat = chatStorageService.getCurrentChat();
-    if (currentChat) {
-      chatStorageService.deleteChat(currentChat.id);
-    }
+    // Clear ALL chats from local storage to ensure a fresh start
+    const allChats = chatStorageService.getAllChats();
+    allChats.forEach(chat => {
+      chatStorageService.deleteChat(chat.id);
+    });
     
     // Create a new chat with welcome messages
     const welcomeMessages = getWelcomeMessages();
