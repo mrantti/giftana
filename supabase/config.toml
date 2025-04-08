@@ -6,4 +6,3 @@ verify_jwt = false
 
 [functions.get-recommendations]
 verify_jwt = false
-
