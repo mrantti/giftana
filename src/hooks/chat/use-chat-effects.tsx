@@ -46,13 +46,14 @@ export function useChatEffects({
           
           const personaTitle = personaNames[detectedPersona] || 'Unknown';
           
-          // Show toast notification with detected traits
+          // Show toast notification with detected traits and new Giftana branding
           toast({
             title: `Personalized for ${personaTitle}`,
             description: traits.length > 0 
               ? `Based on: ${traits.slice(0, 2).join(', ')}` 
-              : "Tailoring recommendations for your preferences",
+              : "You bring the heart. We'll make sure it shows.",
             duration: 5000,
+            className: "bg-gradient-to-r from-giftana-teal to-giftana-teal/90 text-white border-giftana-lavender"
           });
           
           setPersonaNotified(detectedPersona);

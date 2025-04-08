@@ -1,69 +1,71 @@
 
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Montserrat:wght@300;400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    --background: 210 20% 98%;
-    --foreground: 210 40% 12%;
+    --background: 30 30% 98%;
+    --foreground: 180 48% 15%;
 
     --card: 0 0% 100%;
-    --card-foreground: 210 40% 12%;
+    --card-foreground: 180 48% 15%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 210 40% 12%;
+    --popover-foreground: 180 48% 15%;
 
-    --primary: 210 100% 50%;
-    --primary-foreground: 210 40% 98%;
+    --primary: 180 100% 15%;
+    --primary-foreground: 30 30% 98%;
 
-    --secondary: 210 30% 96%;
-    --secondary-foreground: 210 40% 12%;
+    --secondary: 30 60% 88%;
+    --secondary-foreground: 180 48% 15%;
 
-    --muted: 210 20% 92%;
-    --muted-foreground: 210 40% 40%;
+    --muted: 180 5% 92%;
+    --muted-foreground: 180 10% 40%;
 
-    --accent: 210 100% 95%;
-    --accent-foreground: 210 100% 40%;
+    --accent: 5 89% 69%;
+    --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive-foreground: 30 30% 98%;
 
-    --border: 210 10% 88%;
-    --input: 210 10% 88%;
-    --ring: 210 100% 50%;
+    --border: 180 5% 88%;
+    --input: 180 5% 88%;
+    --ring: 180 100% 15%;
 
     --radius: 0.75rem;
   }
 
   .dark {
-    --background: 210 50% 8%;
-    --foreground: 210 20% 98%;
+    --background: 180 30% 8%;
+    --foreground: 30 30% 98%;
 
-    --card: 210 40% 10%;
-    --card-foreground: 210 20% 98%;
+    --card: 180 25% 10%;
+    --card-foreground: 30 30% 98%;
 
-    --popover: 210 40% 10%;
-    --popover-foreground: 210 20% 98%;
+    --popover: 180 25% 10%;
+    --popover-foreground: 30 30% 98%;
 
-    --primary: 210 100% 50%;
-    --primary-foreground: 210 20% 98%;
+    --primary: 180 60% 25%;
+    --primary-foreground: 30 30% 98%;
 
-    --secondary: 210 30% 15%;
-    --secondary-foreground: 210 20% 98%;
+    --secondary: 180 20% 15%;
+    --secondary-foreground: 30 30% 98%;
 
-    --muted: 210 30% 15%;
-    --muted-foreground: 210 20% 60%;
+    --muted: 180 20% 15%;
+    --muted-foreground: 30 20% 60%;
 
-    --accent: 210 30% 15%;
-    --accent-foreground: 210 100% 50%;
+    --accent: 5 89% 69%;
+    --accent-foreground: 0 0% 100%;
 
     --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 20% 98%;
+    --destructive-foreground: 30 30% 98%;
 
-    --border: 210 30% 18%;
-    --input: 210 30% 18%;
-    --ring: 210 100% 50%;
+    --border: 180 20% 18%;
+    --input: 180 20% 18%;
+    --ring: 180 60% 25%;
   }
 }
 
@@ -73,8 +75,12 @@
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-sans;
     font-feature-settings: "rlig" 1, "calt" 1;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-serif;
   }
 }
 
@@ -160,4 +166,24 @@
 
 .product-card:hover {
   @apply shadow-lg transform -translate-y-1;
+}
+
+/* Giftana Brand Elements */
+.accent-gradient {
+  background: linear-gradient(135deg, #ff6f61 0%, #d6cadd 100%);
+}
+
+.ribbon-decoration {
+  @apply relative;
+}
+
+.ribbon-decoration::after {
+  content: '';
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ff6f61' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 3L9 3 4 8 4 16 9 21 12 21'/%3E%3Cpath d='M12 3L15 3 20 8 20 16 15 21 12 21'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
 }

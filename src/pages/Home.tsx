@@ -3,7 +3,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { Gift, Calendar, MessageCircle, ArrowRight, Check } from 'lucide-react';
+import { Gift, Calendar, MessageCircle, ArrowRight, Check, Sparkles } from 'lucide-react';
 
 const Home = () => {
   return (
@@ -14,7 +14,7 @@ const Home = () => {
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5 }}
       >
-        <div className="absolute inset-0 bg-gradient-to-b from-primary/5 to-transparent -z-10" />
+        <div className="absolute inset-0 bg-gradient-to-b from-giftana-gold/30 to-transparent -z-10" />
         
         <div className="container px-4 md:px-6">
           <div className="flex flex-col items-center text-center space-y-4 max-w-3xl mx-auto">
@@ -24,14 +24,14 @@ const Home = () => {
               transition={{ delay: 0.2, duration: 0.5 }}
               className="space-y-2"
             >
-              <div className="inline-flex items-center justify-center p-2 bg-primary/10 rounded-full mb-2">
-                <Gift className="h-6 w-6 text-primary" />
+              <div className="inline-flex items-center justify-center p-2 bg-giftana-coral/10 rounded-full mb-2">
+                <Gift className="h-6 w-6 text-giftana-coral" />
               </div>
-              <h1 className="text-3xl md:text-5xl font-bold tracking-tight leading-tight">
-                Find the Perfect Gift with AI-Powered Suggestions
+              <h1 className="text-3xl md:text-5xl font-serif font-bold tracking-tight leading-tight">
+                The thought is there. <br />We'll make sure it shows.
               </h1>
-              <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-                Never stress about gift shopping again. PerfectGiftAI helps you discover thoughtful, personalized gifts for everyone in your life.
+              <p className="text-xl text-muted-foreground max-w-2xl mx-auto font-sans mt-4">
+                Thoughtful, made simple. Giftana helps you discover meaningful, personalized gifts for everyone in your life.
               </p>
             </motion.div>
             
@@ -41,13 +41,13 @@ const Home = () => {
               transition={{ delay: 0.4, duration: 0.5 }}
               className="flex flex-col sm:flex-row gap-4 mt-6"
             >
-              <Button asChild size="lg" className="gap-2">
+              <Button asChild size="lg" className="gap-2 bg-giftana-teal hover:bg-giftana-teal/90">
                 <Link to="/chat">
                   Try It Now
                   <ArrowRight className="h-4 w-4" />
                 </Link>
               </Button>
-              <Button asChild variant="outline" size="lg">
+              <Button asChild variant="outline" size="lg" className="border-giftana-teal text-giftana-teal hover:bg-giftana-teal/10">
                 <Link to="/dashboard">
                   View Dashboard
                 </Link>
@@ -64,7 +64,7 @@ const Home = () => {
             <div className="bg-card overflow-hidden border rounded-xl">
               <img 
                 src="https://images.unsplash.com/photo-1513885535751-8b9238bd345a?q=80&w=1000&auto=format&fit=crop"
-                alt="PerfectGiftAI Interface" 
+                alt="Giftana Interface" 
                 className="w-full h-auto object-cover"
               />
             </div>
@@ -72,29 +72,29 @@ const Home = () => {
         </div>
       </motion.section>
       
-      <section className="py-16 bg-secondary/50">
+      <section className="py-16 bg-giftana-cream">
         <div className="container px-4 md:px-6">
           <div className="text-center mb-10">
-            <h2 className="text-2xl md:text-3xl font-bold">How It Works</h2>
+            <h2 className="text-2xl md:text-3xl font-serif font-bold">How Giftana Works</h2>
             <p className="text-muted-foreground mt-2 max-w-2xl mx-auto">
-              PerfectGiftAI takes the stress out of gift shopping in three simple steps
+              You bring the heart. We'll make sure it shows.
             </p>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
             {[
               {
-                icon: <MessageCircle className="h-10 w-10 text-primary" />,
+                icon: <MessageCircle className="h-10 w-10 text-giftana-coral" />,
                 title: "Chat with AI",
                 description: "Describe who you're shopping for and their interests. Our AI understands their personality and preferences."
               },
               {
-                icon: <Gift className="h-10 w-10 text-primary" />,
+                icon: <Gift className="h-10 w-10 text-giftana-coral" />,
                 title: "Get Personalized Suggestions",
                 description: "Receive thoughtfully curated gift ideas that match their interests, your budget, and the occasion."
               },
               {
-                icon: <Calendar className="h-10 w-10 text-primary" />,
+                icon: <Calendar className="h-10 w-10 text-giftana-coral" />,
                 title: "Never Miss an Occasion",
                 description: "Set up reminders for birthdays and events. We'll notify you with enough time to find the perfect gift."
               }
@@ -107,10 +107,10 @@ const Home = () => {
                 viewport={{ once: true }}
                 className="flex flex-col items-center text-center p-6"
               >
-                <div className="rounded-full bg-primary/10 p-3 mb-4">
+                <div className="rounded-full bg-giftana-coral/10 p-3 mb-4">
                   {step.icon}
                 </div>
-                <h3 className="text-xl font-medium mb-2">{step.title}</h3>
+                <h3 className="text-xl font-serif font-medium mb-2">{step.title}</h3>
                 <p className="text-muted-foreground">{step.description}</p>
               </motion.div>
             ))}
@@ -128,11 +128,11 @@ const Home = () => {
               viewport={{ once: true }}
               className="md:w-1/2"
             >
-              <h2 className="text-2xl md:text-3xl font-bold mb-4">
+              <h2 className="text-2xl md:text-3xl font-serif font-bold mb-4">
                 Keep Track of Important Dates
               </h2>
               <p className="text-muted-foreground mb-6">
-                Never forget a birthday, anniversary, or special occasion again. PerfectGiftAI helps you keep track of important dates and sends timely reminders so you always have time to find the perfect gift.
+                Never forget a birthday, anniversary, or special occasion again. Giftana helps you keep track of important dates and sends timely reminders so you always have time to find the perfect gift.
               </p>
               
               <div className="space-y-3">
@@ -150,8 +150,8 @@ const Home = () => {
                     viewport={{ once: true }}
                     className="flex items-center gap-2"
                   >
-                    <div className="flex-shrink-0 rounded-full bg-primary/10 p-1">
-                      <Check className="h-4 w-4 text-primary" />
+                    <div className="flex-shrink-0 rounded-full bg-giftana-teal/10 p-1">
+                      <Check className="h-4 w-4 text-giftana-teal" />
                     </div>
                     <span>{feature}</span>
                   </motion.div>
@@ -159,7 +159,7 @@ const Home = () => {
               </div>
               
               <div className="mt-8">
-                <Button asChild className="gap-2">
+                <Button asChild className="gap-2 bg-giftana-teal hover:bg-giftana-teal/90">
                   <Link to="/events">
                     Try Calendar Features
                     <ArrowRight className="h-4 w-4" />
@@ -187,20 +187,20 @@ const Home = () => {
         </div>
       </section>
       
-      <section className="py-16 bg-primary/5">
+      <section className="py-16 bg-giftana-lavender/20">
         <div className="container px-4 md:px-6 text-center">
-          <h2 className="text-2xl md:text-3xl font-bold mb-3">
+          <h2 className="text-2xl md:text-3xl font-serif font-bold mb-3">
             Ready to Find the Perfect Gift?
           </h2>
           <p className="text-muted-foreground mb-8 max-w-2xl mx-auto">
-            Join PerfectGiftAI today and never stress about gift shopping again. It's free to get started!
+            Join Giftana today and never stress about gift shopping again. It's free to get started!
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button asChild size="lg">
+            <Button asChild size="lg" className="bg-giftana-coral hover:bg-giftana-coral/90">
               <Link to="/chat">Get Started</Link>
             </Button>
-            <Button asChild variant="outline" size="lg">
+            <Button asChild variant="outline" size="lg" className="border-giftana-coral text-giftana-coral hover:bg-giftana-coral/10">
               <Link to="/dashboard">Learn More</Link>
             </Button>
           </div>

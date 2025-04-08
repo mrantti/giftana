@@ -45,8 +45,11 @@ const NavBar = () => {
     >
       <div className="container mx-auto px-4 md:px-6 flex items-center justify-between">
         <Link to="/" className="flex items-center space-x-2">
-          <Gift className="h-6 w-6 text-primary" />
-          <span className="font-semibold text-xl tracking-tight">PerfectGiftAI</span>
+          <div className="relative">
+            <Gift className="h-6 w-6 text-giftana-teal" />
+            <div className="absolute -top-1 -right-1 w-3 h-3 bg-giftana-coral rounded-full animate-pulse"></div>
+          </div>
+          <span className="font-serif font-semibold text-xl tracking-tight">Giftana</span>
         </Link>
         
         {isMobile ? (
@@ -75,7 +78,7 @@ const NavBar = () => {
                       to={link.to}
                       className={`flex items-center space-x-2 p-3 rounded-md transition-colors ${
                         isActive(link.to)
-                          ? 'bg-primary/10 text-primary font-medium'
+                          ? 'bg-giftana-teal/10 text-giftana-teal font-medium'
                           : 'hover:bg-secondary'
                       }`}
                     >
@@ -95,7 +98,7 @@ const NavBar = () => {
                 to={link.to}
                 className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm transition-colors ${
                   isActive(link.to)
-                    ? 'bg-primary/10 text-primary font-medium'
+                    ? 'bg-giftana-teal/10 text-giftana-teal font-medium'
                     : 'hover:bg-secondary'
                 }`}
               >

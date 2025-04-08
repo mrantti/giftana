@@ -1,6 +1,6 @@
 
 import React, { useRef, useState, useEffect } from 'react';
-import { RotateCcw, Server, Activity, UserRound } from 'lucide-react';
+import { RotateCcw, Server, Activity, UserRound, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useChatState } from '@/hooks/use-chat-state';
 import MessagesList from './MessagesList';
@@ -71,7 +71,8 @@ const ChatInterface: React.FC = () => {
     <div className="flex flex-col h-full">
       <div className="bg-card border-b px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <h2 className="font-semibold">Gift Advisor</h2>
+          <h2 className="font-serif font-semibold">Giftana</h2>
+          <span className="text-xs text-muted-foreground">Gift Advisor</span>
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
@@ -95,7 +96,7 @@ const ChatInterface: React.FC = () => {
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <span className="text-xs bg-muted px-2 py-1 rounded-full flex items-center gap-1 transition-all hover:bg-muted/80 cursor-default">
+                  <span className="text-xs bg-giftana-lavender/30 px-2 py-1 rounded-full flex items-center gap-1 transition-all hover:bg-giftana-lavender/50 cursor-default">
                     <span>{getPersonaIcon(persona)}</span>
                     <span>{getPersonaDisplayName(persona)}</span>
                   </span>
@@ -114,6 +115,7 @@ const ChatInterface: React.FC = () => {
             size="icon" 
             onClick={handleReset}
             title="Reset conversation"
+            className="text-giftana-teal hover:text-giftana-teal/80 hover:bg-giftana-teal/10"
           >
             <RotateCcw className="h-4 w-4" />
           </Button>
@@ -154,7 +156,7 @@ const ChatInterface: React.FC = () => {
             </div>
             <span className="text-xs text-muted-foreground text-center max-w-md">
               As an Amazon Associate / Etsy Affiliate, we may earn from qualifying purchases.
-              <a href="/privacy" className="underline underline-offset-2 ml-1 text-primary">
+              <a href="/privacy" className="underline underline-offset-2 ml-1 text-giftana-teal">
                 Learn more
               </a>
             </span>

@@ -19,6 +19,10 @@ export default {
 			}
 		},
 		extend: {
+			fontFamily: {
+				serif: ['Playfair Display', 'serif'],
+				sans: ['Montserrat', 'sans-serif']
+			},
 			colors: {
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',
@@ -52,6 +56,14 @@ export default {
 				card: {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))'
+				},
+				// Custom brand colors
+				giftana: {
+					teal: '#004d4d',
+					coral: '#ff6f61',
+					gold: '#f7e7ce',
+					lavender: '#d6cadd',
+					cream: '#faf7f2'
 				}
 			},
 			borderRadius: {
@@ -92,6 +104,11 @@ export default {
 					'0%': { transform: 'scale(0.9)', opacity: '0' },
 					'70%': { transform: 'scale(1.05)', opacity: '0.9' },
 					'100%': { transform: 'scale(1)', opacity: '1' }
+				},
+				'ribbon-wave': {
+					'0%': { transform: 'rotate(0deg)' },
+					'50%': { transform: 'rotate(5deg)' },
+					'100%': { transform: 'rotate(0deg)' }
 				}
 			},
 			animation: {
@@ -102,7 +119,8 @@ export default {
 				'slide-in': 'slide-in 0.4s ease-out',
 				'slide-up': 'slide-up 0.4s ease-out',
 				'scale-in': 'scale-in 0.3s ease-out',
-				'bounce-in': 'bounce-in 0.5s ease-out'
+				'bounce-in': 'bounce-in 0.5s ease-out',
+				'ribbon-wave': 'ribbon-wave 3s ease-in-out infinite'
 			},
 			boxShadow: {
 				'glass': '0 4px 30px rgba(0, 0, 0, 0.1)',
