@@ -1,3 +1,4 @@
+
 import { Message, ChatMetrics } from '@/types/chat';
 import { useToast } from '@/components/ui/use-toast';
 import { chatService } from '@/services/chatService';
@@ -5,6 +6,7 @@ import { recommendationService } from '@/services/recommendationService';
 import { systemService } from '@/services/systemService';
 import { Product } from '@/types/product';
 import { PersonaType } from '@/components/chat/chatFlowConfig';
+import { chatFlow } from '@/components/chat/chatFlowConfig';
 
 export function useOptionHandler({
   setMessages,
@@ -14,6 +16,7 @@ export function useOptionHandler({
   setPersona,
   setMetrics,
   chatHistory,
+  currentStep,
   persona,
   handleNextStep,
   handleSuggestions
@@ -25,6 +28,7 @@ export function useOptionHandler({
   setPersona: React.Dispatch<React.SetStateAction<PersonaType>>;
   setMetrics: React.Dispatch<React.SetStateAction<ChatMetrics>>;
   chatHistory: {[key: string]: string};
+  currentStep: string;
   persona: PersonaType;
   handleNextStep: (nextStep: string) => Promise<void>;
   handleSuggestions: () => Promise<void>;
@@ -86,6 +90,3 @@ export function useOptionHandler({
 
   return { handleOptionSelect };
 }
-
-// Include the chatFlow import at the top
-import { chatFlow } from '@/components/chat/chatFlowConfig';

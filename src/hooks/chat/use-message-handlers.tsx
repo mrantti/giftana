@@ -65,13 +65,14 @@ export function useMessageHandlers({
     setPersona,
     setMetrics,
     chatHistory,
+    currentStep,
     persona,
     handleNextStep,
     handleSuggestions
   });
 
   // Use the submit handler
-  const { handleSubmit: baseHandleSubmit } = useSubmitHandler({
+  const { handleSubmit } = useSubmitHandler({
     setMessages,
     setIsTyping,
     setShowTextInput,
@@ -92,11 +93,6 @@ export function useMessageHandlers({
     setMetrics,
     setProducts
   });
-
-  // Wrapper function to provide the current inputValue
-  const handleSubmit = (e: React.FormEvent) => {
-    return baseHandleSubmit(e, inputValue);
-  };
 
   return {
     handleSubmit,

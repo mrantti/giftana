@@ -33,7 +33,7 @@ export function useChatState() {
   const { trackProductClick } = useProductTracking();
 
   const {
-    handleSubmit: baseHandleSubmit,
+    handleSubmit,
     handleOptionSelect,
     handleReset,
     handleSuggestions,
@@ -53,11 +53,6 @@ export function useChatState() {
     currentStep,
     persona
   });
-
-  // Wrapper function to provide the current inputValue
-  const handleSubmit = (e: React.FormEvent) => {
-    return baseHandleSubmit(e, inputValue);
-  };
 
   return {
     messages,
