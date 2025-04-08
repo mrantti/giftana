@@ -72,18 +72,24 @@ export const chatFlow: ChatFlowConfig = {
     ]
   },
   relationship_depth: {
-    message: "How would you describe your relationship with this person?",
+    message: "How would you describe the relationship?",
     choices: [
-      { id: 'very_close', text: "Very close, we share deep connection", nextStep: 'memory_based' },
-      { id: 'good_friends', text: "We're good friends/family", nextStep: 'gift_preference' },
-      { id: 'acquaintance', text: "We're acquaintances/colleagues", nextStep: 'gift_preference' }
+      { id: 'very_close', text: "Very close, with a deep connection", nextStep: 'memory_based' },
+      { id: 'good_friends', text: "Good and meaningful", nextStep: 'gift_preference' },
+      { id: 'acquaintance', text: "More casual/professional", nextStep: 'gift_preference' }
     ]
   },
   memory_based: {
     message: "Would you like the gift to reference a shared memory or experience?",
     choices: [
-      { id: 'memory_yes', text: "Yes, I'd like something that recalls a memory", nextStep: 'gift_preference' },
+      { id: 'memory_yes', text: "Yes, I'd like something that recalls a memory", nextStep: 'describe_memory' },
       { id: 'memory_no', text: "No, but I still want something meaningful", nextStep: 'gift_preference' }
+    ]
+  },
+  describe_memory: {
+    message: "Tell me a bit about this memory or experience you'd like to reference in the gift:",
+    choices: [
+      { id: 'memory_described', text: "I've shared the memory details", nextStep: 'custom_input' }
     ]
   },
   gift_preference: {

@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { ChatMetrics, Message } from '@/types/chat';
 import { Product } from '@/types/product';
@@ -39,7 +40,6 @@ export function useMessageHandlers({
   persona: PersonaType;
 }) {
   const { toast } = useToast();
-  const inputValue = '';
 
   const handleSubmit = async (e: React.FormEvent, inputVal: string) => {
     e.preventDefault();
@@ -54,18 +54,35 @@ export function useMessageHandlers({
       setMessages(prev => [...prev, userMessage]);
       setInputValue('');
       
-      // More personalized response based on the persona
+      // For memory description, move to gift preference after user submits
+      let nextStep = currentStep === 'describe_memory' ? 'gift_preference' : currentStep;
       let responseMessage = "Thanks for your additional information. I'll take that into account with my suggestions.";
       
+      // More personalized response based on the persona
       if (persona !== 'unknown') {
         responseMessage = getPersonalizedResponse(persona);
       }
       
       // Process bot response
       setTimeout(async () => {
-        const botMessage = await chatService.processBotResponse(responseMessage);
-        setMessages(prev => [...prev, botMessage]);
+        // If we're on the memory description step, show a specific acknowledgment
+        if (currentStep === 'describe_memory' || currentStep === 'custom_input') {
+          const botMessage = await chatService.processBotResponse(responseMessage);
+          setMessages(prev => [...prev, botMessage]);
+          
+          // Move to the next step after acknowledging the input
+          if (currentStep === 'describe_memory') {
+            setTimeout(async () => {
+              await handleNextStep('gift_preference');
+            }, 1000);
+          }
+        } else {
+          const botMessage = await chatService.processBotResponse(responseMessage);
+          setMessages(prev => [...prev, botMessage]);
+        }
+        
         setIsTyping(false);
+        setShowTextInput(false);
         setMetrics(chatService.getMetrics());
       }, 1500);
     } catch (error) {

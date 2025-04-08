@@ -56,7 +56,7 @@ const MessagesList: React.FC<MessagesListProps> = ({
       )}
       
       <AnimatePresence>
-        {messages.map((message) => (
+        {messages.map((message, index) => (
           <motion.div 
             key={message.id}
             initial={{ opacity: 0, y: 10 }}
@@ -69,12 +69,16 @@ const MessagesList: React.FC<MessagesListProps> = ({
               timestamp={message.timestamp}
             />
             
-            {message.choices && message.choices.length > 0 && message.type === 'bot' && (
-              <MessageChoices 
-                choices={message.choices} 
-                onSelect={onOptionSelect} 
-              />
-            )}
+            {/* Show choices only for the most recent bot message */}
+            {message.choices && 
+              message.choices.length > 0 && 
+              message.type === 'bot' && 
+              index === messages.length - 1 && (
+                <MessageChoices 
+                  choices={message.choices} 
+                  onSelect={onOptionSelect} 
+                />
+              )}
           </motion.div>
         ))}
         
