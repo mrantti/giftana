@@ -4,19 +4,19 @@ import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import ProductSuggestion from './ProductSuggestion';
 import { Product } from '@/types/product';
-import { useChatState } from '@/hooks/use-chat-state';
 
 interface ProductSuggestionsListProps {
-  products?: Product[];
+  products: Product[];
+  onProductClick: (product: Product) => void;
 }
 
-const ProductSuggestionsList: React.FC<ProductSuggestionsListProps> = () => {
-  // Get products from chat state
-  const { products, trackProductClick } = useChatState();
-  
+const ProductSuggestionsList: React.FC<ProductSuggestionsListProps> = ({ 
+  products, 
+  onProductClick 
+}) => {
   // Handle product click
   const handleProductClick = (product: Product) => {
-    trackProductClick(product);
+    onProductClick(product);
   };
   
   return (
