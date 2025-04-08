@@ -1,12 +1,13 @@
 
-import React, { useRef } from 'react';
-import { RotateCcw, Server, Activity } from 'lucide-react';
+import React, { useRef, useState, useEffect } from 'react';
+import { RotateCcw, Server, Activity, UserRound } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useChatState } from '@/hooks/use-chat-state';
 import MessagesList from './MessagesList';
 import ProductSuggestionsList from './ProductSuggestionsList';
 import ChatInput from './ChatInput';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { PersonaType, getPersonaDescription } from './chatFlowConfig';
 
 const ChatInterface: React.FC = () => {
   const { 
@@ -25,17 +26,17 @@ const ChatInterface: React.FC = () => {
   } = useChatState();
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const [showPersonaInfo, setShowPersonaInfo] = React.useState(false);
+  const [showPersonaInfo, setShowPersonaInfo] = useState(false);
   
   // Show persona info when the persona is determined
-  React.useEffect(() => {
+  useEffect(() => {
     if (persona !== 'unknown') {
       setShowPersonaInfo(true);
     }
   }, [persona]);
 
   // Helper function to get persona display name
-  const getPersonaDisplayName = (personaType: string): string => {
+  const getPersonaDisplayName = (personaType: PersonaType): string => {
     const personaNames: {[key: string]: string} = {
       'busy_professional': 'Busy Professional',
       'last_minute': 'Last-Minute Shopper',
@@ -46,6 +47,24 @@ const ChatInterface: React.FC = () => {
     };
     
     return personaNames[personaType] || '';
+  };
+
+  // Get persona icon
+  const getPersonaIcon = (personaType: PersonaType) => {
+    switch (personaType) {
+      case 'busy_professional':
+        return '⏱️';
+      case 'last_minute':
+        return '🏃';
+      case 'sentimental':
+        return '❤️';
+      case 'corporate':
+        return '💼';
+      case 'budget_conscious':
+        return '💰';
+      default:
+        return '';
+    }
   };
 
   return (
@@ -73,9 +92,22 @@ const ChatInterface: React.FC = () => {
         </div>
         <div className="flex items-center space-x-2">
           {persona !== 'unknown' && (
-            <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded">
-              {getPersonaDisplayName(persona)}
-            </span>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span className="text-xs bg-muted px-2 py-1 rounded-full flex items-center gap-1 transition-all hover:bg-muted/80 cursor-default">
+                    <span>{getPersonaIcon(persona)}</span>
+                    <span>{getPersonaDisplayName(persona)}</span>
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent side="bottom" className="max-w-xs">
+                  <div className="text-xs space-y-1">
+                    <p className="font-medium">{getPersonaDisplayName(persona)}</p>
+                    <p>{getPersonaDescription(persona)}</p>
+                  </div>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           )}
           <Button 
             variant="ghost" 
