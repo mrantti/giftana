@@ -5,7 +5,7 @@ import { chatStorageService } from './chatStorageService';
 
 // Reduced latency for faster responses
 const SERVICE_LATENCY = {
-  respond: () => 200 + Math.random() * 200, // 200-400ms
+  respond: () => 100 + Math.random() * 100, // 100-200ms for faster responses
 };
 
 class ChatService {
@@ -100,6 +100,10 @@ class ChatService {
   }
 
   resetChat(): Message[] {
+    // Force clear everything in localStorage to ensure a clean state
+    localStorage.removeItem('perfectgift_chats');
+    localStorage.removeItem('perfectgift_current_chat');
+    
     // Reset metrics
     this.metrics = {
       responseTime: 0,
@@ -107,15 +111,13 @@ class ChatService {
       messageCount: 0
     };
     
-    // Clear storage
-    localStorage.removeItem('perfectgift_chats');
-    localStorage.removeItem('perfectgift_current_chat');
-    
     // Create fresh welcome messages
     const welcomeMessages = getWelcomeMessages();
+    
+    // Create a new chat in storage with the welcome messages
     chatStorageService.createChat(welcomeMessages);
     
-    return [...welcomeMessages];
+    return welcomeMessages;
   }
 
   getMetrics(): ChatMetrics {

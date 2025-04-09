@@ -26,9 +26,7 @@ export function useResetHandler({
   const { toast } = useToast();
 
   const handleReset = () => {
-    const initialMessages = chatService.resetChat();
-    
-    // Clear all state
+    // First reset all state variables immediately
     setChatHistory({});
     setShowSuggestions(false);
     setCurrentStep('welcome');
@@ -36,7 +34,13 @@ export function useResetHandler({
     setPersona('unknown');
     setProducts([]);
     
-    // Update with fresh data with minimal delay
+    // Clear messages immediately to give instant feedback
+    setMessages([]);
+    
+    // Then get fresh welcome messages from service
+    const initialMessages = chatService.resetChat();
+    
+    // Force a re-render with the new messages
     setTimeout(() => {
       setMessages([...initialMessages]);
       setMetrics({...chatService.getMetrics()});
@@ -45,7 +49,7 @@ export function useResetHandler({
         title: "Chat reset",
         description: "The conversation has been reset to the beginning."
       });
-    }, 0);
+    }, 50);
   };
 
   return { handleReset };
