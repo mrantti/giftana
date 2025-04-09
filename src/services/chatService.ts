@@ -1,3 +1,4 @@
+
 import { Message, ChatMetrics } from '@/types/chat';
 import { getWelcomeMessages } from '@/components/chat/chatFlowConfig';
 import { chatStorageService } from './chatStorageService';
@@ -125,17 +126,16 @@ class ChatService {
       messageCount: 0
     };
     
-    // Clear ALL chats from local storage to ensure a fresh start
-    const allChats = chatStorageService.getAllChats();
-    allChats.forEach(chat => {
-      chatStorageService.deleteChat(chat.id);
-    });
+    // Force clear local storage to ensure complete reset
+    localStorage.removeItem('perfectgift_chats');
+    localStorage.removeItem('perfectgift_current_chat');
     
     // Create a new chat with welcome messages
     const welcomeMessages = getWelcomeMessages();
     const newChat = chatStorageService.createChat(welcomeMessages);
     
-    return newChat.messages;
+    // Return the fresh welcome messages for immediate UI update
+    return [...welcomeMessages];
   }
 
   // Get current chat metrics

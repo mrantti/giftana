@@ -27,24 +27,29 @@ export function useResetHandler({
   const { toast } = useToast();
 
   const handleReset = () => {
-    // Reset through chat service - this creates a new chat with welcome messages
+    // Get fresh welcome messages via the service - this updates storage
     const initialMessages = chatService.resetChat();
     
-    // Force a full refresh of the app state
-    setMessages([...initialMessages]); // Use spread to ensure a new array reference
+    // First clear all state
+    setChatHistory({});
     setShowSuggestions(false);
     setCurrentStep('welcome');
-    setChatHistory({});
     setShowTextInput(false);
     setPersona('unknown');
-    setMetrics({...chatService.getMetrics()}); // Use spread to ensure a new object reference
     setProducts([]);
     
-    // Show toast notification
-    toast({
-      title: "Chat reset",
-      description: "The conversation has been reset to the beginning."
-    });
+    // Force update messages state with the fresh welcome messages
+    // This is crucial - we need a new array reference to trigger re-render
+    setTimeout(() => {
+      setMessages([...initialMessages]);
+      setMetrics({...chatService.getMetrics()});
+      
+      // Show toast notification
+      toast({
+        title: "Chat reset",
+        description: "The conversation has been reset to the beginning."
+      });
+    }, 0);
   };
 
   return { handleReset };
