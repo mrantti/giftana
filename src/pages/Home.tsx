@@ -10,15 +10,15 @@ const Home = () => {
   return (
     <div className="flex flex-col min-h-screen">
       <motion.section 
-        className="relative pt-20 pb-10 md:pt-24 md:pb-16 overflow-hidden"
+        className="relative pt-16 pb-10 md:pt-20 md:pb-14 overflow-hidden"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5 }}
       >
-        <div className="absolute inset-0 bg-gradient-to-b from-giftana-gold/30 to-transparent -z-10" />
+        <div className="absolute inset-0 bg-gradient-to-b from-giftana-gold/20 to-transparent -z-10" />
         
         <div className="container px-4 md:px-6">
-          <div className="flex flex-col items-center text-center space-y-4 max-w-3xl mx-auto mb-8">
+          <div className="flex flex-col items-center text-center space-y-4 max-w-3xl mx-auto mb-6">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -28,11 +28,11 @@ const Home = () => {
               <div className="inline-flex items-center justify-center p-2 bg-giftana-coral/10 rounded-full mb-2">
                 <Gift className="h-6 w-6 text-giftana-coral" />
               </div>
-              <h1 className="text-3xl md:text-5xl font-serif font-bold tracking-tight leading-tight">
+              <h1 className="text-3xl md:text-4xl font-serif font-bold tracking-tight leading-tight">
                 The thought is there. <br />We'll make sure it shows.
               </h1>
-              <p className="text-xl text-muted-foreground max-w-2xl mx-auto font-sans mt-4">
-                Thoughtful, made simple. Giftana helps you discover meaningful, personalized gifts for everyone in your life.
+              <p className="text-lg text-muted-foreground max-w-2xl mx-auto font-sans mt-3">
+                Thoughtful, made simple. Ask our Gift Advisor for personalized gift ideas for everyone in your life.
               </p>
             </motion.div>
           </div>
@@ -40,10 +40,10 @@ const Home = () => {
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6, duration: 0.6 }}
-            className="mt-6 md:mt-8 relative mx-auto max-w-4xl overflow-hidden rounded-xl shadow-xl"
+            transition={{ delay: 0.4, duration: 0.6 }}
+            className="mt-4 relative mx-auto max-w-4xl"
           >
-            <div className="bg-card overflow-hidden border rounded-xl max-h-[600px]">
+            <div className="bg-gradient-to-b from-background to-giftana-cream/30 rounded-xl overflow-hidden border border-giftana-teal/10 shadow-lg max-h-[520px]">
               <ChatInterface />
             </div>
           </motion.div>

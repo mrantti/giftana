@@ -8,6 +8,7 @@ import { systemService } from '@/services/systemService';
 import { useChatEffects } from './chat/use-chat-effects';
 import { useMessageHandlers } from './chat/use-message-handlers';
 import { useProductTracking } from './chat/use-product-tracking';
+import { useResetHandler } from './chat/use-reset-handler';
 
 export function useChatState() {
   // State management
@@ -31,11 +32,23 @@ export function useChatState() {
   });
 
   const { trackProductClick } = useProductTracking();
+  
+  // Extract reset handler to its own hook
+  const { handleReset } = useResetHandler({
+    setMessages,
+    setShowSuggestions,
+    setCurrentStep,
+    setChatHistory,
+    setShowTextInput,
+    setPersona,
+    setMetrics,
+    setProducts,
+    setIsTyping
+  });
 
   const {
     handleSubmit,
     handleOptionSelect,
-    handleReset,
     handleSuggestions,
     handleNextStep
   } = useMessageHandlers({

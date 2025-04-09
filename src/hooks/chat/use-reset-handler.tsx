@@ -12,7 +12,8 @@ export function useResetHandler({
   setShowTextInput,
   setPersona,
   setMetrics,
-  setProducts
+  setProducts,
+  setIsTyping
 }: {
   setMessages: React.Dispatch<React.SetStateAction<any>>;
   setShowSuggestions: React.Dispatch<React.SetStateAction<boolean>>;
@@ -22,11 +23,15 @@ export function useResetHandler({
   setPersona: React.Dispatch<React.SetStateAction<PersonaType>>;
   setMetrics: React.Dispatch<React.SetStateAction<ChatMetrics>>;
   setProducts: React.Dispatch<React.SetStateAction<any[]>>;
+  setIsTyping: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
   const { toast } = useToast();
 
   const handleReset = () => {
-    // First reset all state variables immediately
+    // First show loading state
+    setIsTyping(true);
+    
+    // Clear all state variables immediately
     setChatHistory({});
     setShowSuggestions(false);
     setCurrentStep('welcome');
@@ -38,18 +43,22 @@ export function useResetHandler({
     setMessages([]);
     
     // Then get fresh welcome messages from service
-    const initialMessages = chatService.resetChat();
-    
-    // Force a re-render with the new messages
     setTimeout(() => {
+      const initialMessages = chatService.resetChat();
+      
+      // Stop loading state
+      setIsTyping(false);
+      
+      // Force a re-render with the new messages
       setMessages([...initialMessages]);
       setMetrics({...chatService.getMetrics()});
       
       toast({
         title: "Chat reset",
-        description: "The conversation has been reset to the beginning."
+        description: "The conversation has been reset. Ask me about gift ideas!",
+        variant: "default",
       });
-    }, 50);
+    }, 300);
   };
 
   return { handleReset };

@@ -8,6 +8,7 @@ import ProductSuggestionsList from './ProductSuggestionsList';
 import ChatInput from './ChatInput';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { PersonaType, getPersonaDescription } from './chatFlowConfig';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 const ChatInterface: React.FC = () => {
   const { 
@@ -71,27 +72,12 @@ const ChatInterface: React.FC = () => {
 
   return (
     <div className="flex flex-col h-full">
-      <div className="bg-card border-b px-4 py-3 flex items-center justify-between">
+      <div className="bg-transparent px-4 py-3 flex items-center justify-between border-b border-giftana-teal/10">
         <div className="flex items-center gap-2">
-          <h2 className="font-serif font-semibold">Giftana</h2>
-          <span className="text-xs text-muted-foreground">Gift Advisor</span>
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <div className="flex items-center">
-                  <div className={`h-2 w-2 rounded-full mr-1 ${systemHealth.status === 'healthy' ? 'bg-green-500' : 'bg-amber-500'}`}></div>
-                  <Server className="h-3.5 w-3.5 text-muted-foreground" />
-                </div>
-              </TooltipTrigger>
-              <TooltipContent side="bottom">
-                <div className="text-xs">
-                  <p>System Status: {systemHealth.status}</p>
-                  <p>API Latency: {systemHealth.latency}</p>
-                  <p>Model Latency: {systemHealth.modelLatency}</p>
-                </div>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+          <h2 className="font-serif font-semibold">Gift Advisor</h2>
+          {systemHealth.status === 'healthy' && (
+            <span className="text-xs bg-green-500/10 text-green-600 px-2 py-0.5 rounded-full">Online</span>
+          )}
         </div>
         <div className="flex items-center space-x-2">
           {persona !== 'unknown' && (
@@ -113,18 +99,18 @@ const ChatInterface: React.FC = () => {
             </TooltipProvider>
           )}
           <Button 
-            variant="ghost" 
-            size="icon" 
+            variant="outline" 
+            size="sm" 
             onClick={handleReset}
-            title="Reset conversation"
-            className="text-giftana-teal hover:text-giftana-teal/80 hover:bg-giftana-teal/10"
+            className="text-giftana-teal border-giftana-teal/40 hover:bg-giftana-teal/10 hover:text-giftana-teal flex items-center gap-1"
           >
-            <RotateCcw className="h-4 w-4" />
+            <RotateCcw className="h-3 w-3" />
+            <span className="text-xs">Reset</span>
           </Button>
         </div>
       </div>
       
-      <div className="flex-1 overflow-y-auto px-4 py-4 chat-container">
+      <ScrollArea className="flex-1 px-4 py-4 chat-container">
         <MessagesList 
           messages={messages}
           isTyping={isTyping}
@@ -136,9 +122,9 @@ const ChatInterface: React.FC = () => {
         {showSuggestions && <ProductSuggestionsList products={products} onProductClick={trackProductClick} />}
         
         <div ref={messagesEndRef} />
-      </div>
+      </ScrollArea>
       
-      <div className="p-4 border-t bg-card">
+      <div className="p-4 border-t border-giftana-cream bg-transparent">
         {showTextInput && (
           <ChatInput
             inputValue={inputValue}
