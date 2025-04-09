@@ -1,4 +1,3 @@
-
 import { ChatFlowConfig } from '../types/flow-types';
 
 // Chat flow configuration
@@ -21,6 +20,7 @@ export const chatFlow: ChatFlowConfig = {
       { id: 'client', text: "Client/Business contact", nextStep: 'occasion' },
       { id: 'other', text: "Someone else", nextStep: 'occasion' }
     ]
+  },
   time_urgency: {
     message: "Great! How soon do you need this gift?",
     choices: [
