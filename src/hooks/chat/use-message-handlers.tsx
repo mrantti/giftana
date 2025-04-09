@@ -82,7 +82,7 @@ export function useMessageHandlers({
     handleNextStep
   });
 
-  // Use the reset handler
+  // Use the reset handler - adding setIsTyping here to fix the TypeScript error
   const { handleReset } = useResetHandler({
     setMessages,
     setShowSuggestions,
@@ -91,7 +91,8 @@ export function useMessageHandlers({
     setShowTextInput,
     setPersona,
     setMetrics,
-    setProducts
+    setProducts,
+    setIsTyping
   });
 
   return {
