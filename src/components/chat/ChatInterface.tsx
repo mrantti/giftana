@@ -71,8 +71,8 @@ const ChatInterface: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col h-full">
-      <div className="bg-transparent px-4 py-3 flex items-center justify-between border-b border-giftana-teal/10">
+    <div className="flex flex-col rounded-xl border border-border bg-card/50 backdrop-blur-sm shadow-sm">
+      <div className="bg-transparent px-4 py-3 flex items-center justify-between border-b border-border/30">
         <div className="flex items-center gap-2">
           <h2 className="font-serif font-semibold">Gift Advisor</h2>
           {systemHealth.status === 'healthy' && (
@@ -105,12 +105,12 @@ const ChatInterface: React.FC = () => {
             className="text-giftana-teal border-giftana-teal/40 hover:bg-giftana-teal/10 hover:text-giftana-teal flex items-center gap-1"
           >
             <RotateCcw className="h-3 w-3" />
-            <span className="text-xs">Reset</span>
+            <span className="text-xs">Reset Chat</span>
           </Button>
         </div>
       </div>
       
-      <ScrollArea className="flex-1 px-4 py-4 chat-container">
+      <ScrollArea className="flex-1 px-4 py-4 max-h-[420px] chat-container">
         <MessagesList 
           messages={messages}
           isTyping={isTyping}
@@ -124,7 +124,7 @@ const ChatInterface: React.FC = () => {
         <div ref={messagesEndRef} />
       </ScrollArea>
       
-      <div className="p-4 border-t border-giftana-cream bg-transparent">
+      <div className="p-4 border-t border-border/30 bg-transparent">
         {showTextInput && (
           <ChatInput
             inputValue={inputValue}

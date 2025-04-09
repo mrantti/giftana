@@ -11,7 +11,7 @@ const Chat = () => {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.3 }}
     >
-      <div className="flex-1 h-full bg-gradient-to-b from-background to-giftana-cream/30 rounded-xl overflow-hidden border border-giftana-teal/10 shadow-lg">
+      <div className="flex-1 h-full overflow-hidden">
         <ChatInterface />
       </div>
     </motion.div>

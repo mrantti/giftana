@@ -29,10 +29,10 @@ const Home = () => {
                 <Gift className="h-6 w-6 text-giftana-coral" />
               </div>
               <h1 className="text-3xl md:text-4xl font-serif font-bold tracking-tight leading-tight">
-                The thought is there. <br />We'll make sure it shows.
+                Giftana helps you discover meaningful, personalized gifts for everyone in your life.
               </h1>
               <p className="text-lg text-muted-foreground max-w-2xl mx-auto font-sans mt-3">
-                Thoughtful, made simple. Ask our Gift Advisor for personalized gift ideas for everyone in your life.
+                Thoughtful, made simple.
               </p>
             </motion.div>
           </div>
@@ -41,9 +41,9 @@ const Home = () => {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4, duration: 0.6 }}
-            className="mt-4 relative mx-auto max-w-4xl"
+            className="mt-8 max-w-4xl mx-auto"
           >
-            <div className="bg-gradient-to-b from-background to-giftana-cream/30 rounded-xl overflow-hidden border border-giftana-teal/10 shadow-lg max-h-[520px]">
+            <div className="chat-embed rounded-xl overflow-hidden">
               <ChatInterface />
             </div>
           </motion.div>
