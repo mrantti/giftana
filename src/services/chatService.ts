@@ -3,13 +3,12 @@ import { Message, ChatMetrics } from '@/types/chat';
 import { getWelcomeMessages } from '@/components/chat/chatFlowConfig';
 import { chatStorageService } from './chatStorageService';
 
-// Simulated service latency - reducing values for faster responses
+// Reduced latency for faster responses
 const SERVICE_LATENCY = {
-  respond: () => 300 + Math.random() * 400, // 300-700ms (was 800-2000ms)
+  respond: () => 200 + Math.random() * 200, // 200-400ms
 };
 
 class ChatService {
-  // Track metrics for the chat service
   private metrics: ChatMetrics = {
     responseTime: 0,
     sessionDuration: 0,
@@ -17,7 +16,6 @@ class ChatService {
   };
   
   constructor() {
-    // Initialize or load existing chat on service startup
     this.initializeChat();
   }
   
@@ -25,15 +23,12 @@ class ChatService {
     const currentChat = chatStorageService.getCurrentChat();
     
     if (currentChat) {
-      // Load existing metrics
       this.metrics = currentChat.metrics;
     } else {
-      // Create a new chat if none exists
       chatStorageService.createChat(getWelcomeMessages());
     }
   }
 
-  // Get initial welcome messages
   getInitialMessages(): Message[] {
     const currentChat = chatStorageService.getCurrentChat();
     
@@ -41,15 +36,12 @@ class ChatService {
       return currentChat.messages;
     }
     
-    // If no existing chat, create a new one with welcome messages
     const welcomeMessages = getWelcomeMessages();
     const newChat = chatStorageService.createChat(welcomeMessages);
     return newChat.messages;
   }
 
-  // Process user response to a choice
   async processUserChoice(choiceText: string): Promise<Message> {
-    // Simulate backend processing time
     const startTime = Date.now();
     await this.simulateNetworkLatency(SERVICE_LATENCY.respond());
     
@@ -60,19 +52,15 @@ class ChatService {
       timestamp: new Date()
     };
     
-    // Update metrics
     this.trackResponseTime(startTime);
     
-    // Save message to persistent storage
     const currentMessages = chatStorageService.getCurrentChat()?.messages || [];
     chatStorageService.updateCurrentChatMessages([...currentMessages, userMessage]);
     
     return userMessage;
   }
 
-  // Process bot response based on a selected option
   async processBotResponse(message: string, choices?: any[]): Promise<Message> {
-    // Simulate backend processing time
     const startTime = Date.now();
     await this.simulateNetworkLatency(SERVICE_LATENCY.respond());
     
@@ -84,19 +72,15 @@ class ChatService {
       choices: choices
     };
     
-    // Update metrics
     this.trackResponseTime(startTime);
     
-    // Save message to persistent storage
     const currentMessages = chatStorageService.getCurrentChat()?.messages || [];
     chatStorageService.updateCurrentChatMessages([...currentMessages, botMessage]);
     
     return botMessage;
   }
 
-  // Process user text input
   async processUserInput(input: string): Promise<Message> {
-    // Simulate backend processing time
     const startTime = Date.now();
     await this.simulateNetworkLatency(SERVICE_LATENCY.respond());
     
@@ -107,17 +91,14 @@ class ChatService {
       timestamp: new Date()
     };
     
-    // Update metrics
     this.trackResponseTime(startTime);
     
-    // Save message to persistent storage
     const currentMessages = chatStorageService.getCurrentChat()?.messages || [];
     chatStorageService.updateCurrentChatMessages([...currentMessages, userMessage]);
     
     return userMessage;
   }
 
-  // Reset the chat session
   resetChat(): Message[] {
     // Reset metrics
     this.metrics = {
@@ -126,45 +107,37 @@ class ChatService {
       messageCount: 0
     };
     
-    // Force clear local storage to ensure complete reset
+    // Clear storage
     localStorage.removeItem('perfectgift_chats');
     localStorage.removeItem('perfectgift_current_chat');
     
-    // Create a new chat with welcome messages
+    // Create fresh welcome messages
     const welcomeMessages = getWelcomeMessages();
-    const newChat = chatStorageService.createChat(welcomeMessages);
+    chatStorageService.createChat(welcomeMessages);
     
-    // Return the fresh welcome messages for immediate UI update
     return [...welcomeMessages];
   }
 
-  // Get current chat metrics
   getMetrics(): ChatMetrics {
     return { ...this.metrics };
   }
 
-  // Update session duration
   updateSessionDuration() {
     this.metrics.sessionDuration += 1;
     chatStorageService.updateCurrentChatMetrics(this.metrics);
   }
 
-  // Private method to track response time
   private trackResponseTime(startTime: number) {
-    const endTime = Date.now();
-    const responseTime = (endTime - startTime) / 1000;
+    const responseTime = (Date.now() - startTime) / 1000;
     this.metrics.responseTime = responseTime;
     this.metrics.messageCount += 1;
     
-    // Update metrics in storage
     chatStorageService.updateCurrentChatMetrics(this.metrics);
   }
 
-  // Simulate network latency - reduce the delay for faster responses
   private simulateNetworkLatency(ms: number): Promise<void> {
     return new Promise(resolve => setTimeout(resolve, ms));
   }
 }
 
-// Export as singleton
 export const chatService = new ChatService();

@@ -3,7 +3,6 @@ import { ChatMetrics } from '@/types/chat';
 import { useToast } from '@/components/ui/use-toast';
 import { chatService } from '@/services/chatService';
 import { PersonaType } from '@/components/chat/chatFlowConfig';
-import { chatStorageService } from '@/services/chatStorageService';
 
 export function useResetHandler({
   setMessages,
@@ -27,10 +26,9 @@ export function useResetHandler({
   const { toast } = useToast();
 
   const handleReset = () => {
-    // Get fresh welcome messages via the service - this updates storage
     const initialMessages = chatService.resetChat();
     
-    // First clear all state
+    // Clear all state
     setChatHistory({});
     setShowSuggestions(false);
     setCurrentStep('welcome');
@@ -38,13 +36,11 @@ export function useResetHandler({
     setPersona('unknown');
     setProducts([]);
     
-    // Force update messages state with the fresh welcome messages
-    // This is crucial - we need a new array reference to trigger re-render
+    // Update with fresh data with minimal delay
     setTimeout(() => {
       setMessages([...initialMessages]);
       setMetrics({...chatService.getMetrics()});
       
-      // Show toast notification
       toast({
         title: "Chat reset",
         description: "The conversation has been reset to the beginning."
