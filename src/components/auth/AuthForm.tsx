@@ -115,11 +115,11 @@ const AuthForm = () => {
       className="w-full max-w-md mx-auto"
     >
       <div className="text-center mb-6">
-        <div className="inline-flex items-center justify-center p-2 bg-primary/10 rounded-full mb-2">
-          <Gift className="h-6 w-6 text-primary" />
+        <div className="inline-flex items-center justify-center p-2 bg-giftana-teal/10 rounded-full mb-2">
+          <Gift className="h-6 w-6 text-giftana-teal" />
         </div>
-        <h1 className="text-2xl font-bold tracking-tight">PerfectGiftAI</h1>
-        <p className="text-muted-foreground mt-1">Find the perfect gift for any occasion</p>
+        <h1 className="text-2xl font-bold tracking-tight font-serif">Giftana</h1>
+        <p className="text-muted-foreground mt-1">Thoughtful, made simple.</p>
       </div>
       
       <Card className="border-none shadow-lg">
@@ -176,7 +176,7 @@ const AuthForm = () => {
                   )}
                 </div>
                 
-                <Button type="submit" className="w-full" disabled={isLoading}>
+                <Button type="submit" className="w-full bg-giftana-teal hover:bg-giftana-teal/90" disabled={isLoading}>
                   {isLoading ? 'Signing in...' : 'Sign In'}
                 </Button>
                 
@@ -184,7 +184,7 @@ const AuthForm = () => {
                   <span>Don't have an account?</span>{' '}
                   <Button
                     variant="link"
-                    className="p-0 h-auto text-primary"
+                    className="p-0 h-auto text-giftana-teal"
                     onClick={() => setActiveTab('register')}
                   >
                     Sign up
@@ -254,7 +254,7 @@ const AuthForm = () => {
                   )}
                 </div>
                 
-                <Button type="submit" className="w-full" disabled={isLoading}>
+                <Button type="submit" className="w-full bg-giftana-teal hover:bg-giftana-teal/90" disabled={isLoading}>
                   {isLoading ? 'Creating account...' : 'Create Account'}
                 </Button>
                 
@@ -262,7 +262,7 @@ const AuthForm = () => {
                   <span>Already have an account?</span>{' '}
                   <Button
                     variant="link"
-                    className="p-0 h-auto text-primary"
+                    className="p-0 h-auto text-giftana-teal"
                     onClick={() => setActiveTab('login')}
                   >
                     Sign in
@@ -310,11 +310,11 @@ const AuthForm = () => {
           
           <p className="px-8 text-center text-xs text-muted-foreground">
             By clicking continue, you agree to our{" "}
-            <a href="/terms" className="underline underline-offset-4 hover:text-primary">
+            <a href="/terms" className="underline underline-offset-4 hover:text-giftana-teal">
               Terms of Service
             </a>{" "}
             and{" "}
-            <a href="/privacy" className="underline underline-offset-4 hover:text-primary">
+            <a href="/privacy" className="underline underline-offset-4 hover:text-giftana-teal">
               Privacy Policy
             </a>
             .
