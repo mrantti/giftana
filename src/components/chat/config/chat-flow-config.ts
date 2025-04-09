@@ -11,14 +11,6 @@ export const chatFlow: ChatFlowConfig = {
       { id: 'time_planning', text: "I'm planning ahead", nextStep: 'recipient' }
     ]
   },
-  time_urgency: {
-    message: "Great! How soon do you need this gift?",
-    choices: [
-      { id: 'urgent', text: "As soon as possible (days)", nextStep: 'recipient' },
-      { id: 'soon', text: "Within a couple weeks", nextStep: 'recipient' },
-      { id: 'planning', text: "I'm planning ahead", nextStep: 'recipient' }
-    ]
-  },
   recipient: {
     message: "Who are you buying this gift for?",
     choices: [
@@ -28,6 +20,13 @@ export const chatFlow: ChatFlowConfig = {
       { id: 'partner', text: "Partner/Significant other", nextStep: 'occasion' },
       { id: 'client', text: "Client/Business contact", nextStep: 'occasion' },
       { id: 'other', text: "Someone else", nextStep: 'occasion' }
+    ]
+  time_urgency: {
+    message: "Great! How soon do you need this gift?",
+    choices: [
+      { id: 'urgent', text: "As soon as possible (days)", nextStep: 'recipient' },
+      { id: 'soon', text: "Within a couple weeks", nextStep: 'recipient' },
+      { id: 'planning', text: "I'm planning ahead", nextStep: 'recipient' }
     ]
   },
   family_member: {
