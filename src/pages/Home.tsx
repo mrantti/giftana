@@ -4,12 +4,13 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Gift, Calendar, MessageCircle, ArrowRight, Check, Sparkles } from 'lucide-react';
+import ChatInterface from '@/components/chat/ChatInterface';
 
 const Home = () => {
   return (
     <div className="flex flex-col min-h-screen">
       <motion.section 
-        className="relative pt-28 pb-16 md:pt-36 md:pb-24 overflow-hidden"
+        className="relative pt-20 pb-10 md:pt-24 md:pb-16 overflow-hidden"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5 }}
@@ -17,7 +18,7 @@ const Home = () => {
         <div className="absolute inset-0 bg-gradient-to-b from-giftana-gold/30 to-transparent -z-10" />
         
         <div className="container px-4 md:px-6">
-          <div className="flex flex-col items-center text-center space-y-4 max-w-3xl mx-auto">
+          <div className="flex flex-col items-center text-center space-y-4 max-w-3xl mx-auto mb-8">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -34,39 +35,16 @@ const Home = () => {
                 Thoughtful, made simple. Giftana helps you discover meaningful, personalized gifts for everyone in your life.
               </p>
             </motion.div>
-            
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4, duration: 0.5 }}
-              className="flex flex-col sm:flex-row gap-4 mt-6"
-            >
-              <Button asChild size="lg" className="gap-2 bg-giftana-teal hover:bg-giftana-teal/90">
-                <Link to="/chat">
-                  Try It Now
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
-              </Button>
-              <Button asChild variant="outline" size="lg" className="border-giftana-teal text-giftana-teal hover:bg-giftana-teal/10">
-                <Link to="/dashboard">
-                  View Dashboard
-                </Link>
-              </Button>
-            </motion.div>
           </div>
           
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.6, duration: 0.6 }}
-            className="mt-12 md:mt-16 relative mx-auto max-w-4xl overflow-hidden rounded-xl shadow-xl"
+            className="mt-6 md:mt-8 relative mx-auto max-w-4xl overflow-hidden rounded-xl shadow-xl"
           >
-            <div className="bg-card overflow-hidden border rounded-xl">
-              <img 
-                src="https://images.unsplash.com/photo-1513885535751-8b9238bd345a?q=80&w=1000&auto=format&fit=crop"
-                alt="Giftana Interface" 
-                className="w-full h-auto object-cover"
-              />
+            <div className="bg-card overflow-hidden border rounded-xl max-h-[600px]">
+              <ChatInterface />
             </div>
           </motion.div>
         </div>
@@ -198,10 +176,10 @@ const Home = () => {
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button asChild size="lg" className="bg-giftana-coral hover:bg-giftana-coral/90">
-              <Link to="/chat">Get Started</Link>
+              <Link to="/dashboard">Get Started</Link>
             </Button>
             <Button asChild variant="outline" size="lg" className="border-giftana-coral text-giftana-coral hover:bg-giftana-coral/10">
-              <Link to="/dashboard">Learn More</Link>
+              <Link to="/events">Learn More</Link>
             </Button>
           </div>
         </div>
